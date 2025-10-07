@@ -1,0 +1,7 @@
+{
+  "name": "DoughPamine",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "vue-vite"
+}
