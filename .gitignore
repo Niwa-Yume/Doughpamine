@@ -26,8 +26,13 @@ npm-debug.log*
 !/.vscode/extensions.json
 /coverage
 /dist
+/dev-dist
 /node_modules
 /platforms
 /plugins
 /www
+
+# Environment files
 .env
+.env.*
+!.env.example
