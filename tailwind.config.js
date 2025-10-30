@@ -19,6 +19,21 @@ export default {
             action: '#A7C08B',
             highlight: '#DCC7A5'
         }
+      },
+      fontFamily: {
+        sans: [
+          'ADLaM Display',
+          'ui-sans-serif',
+          'system-ui',
+          '-apple-system',
+          'Segoe UI',
+          'Roboto',
+          'Helvetica',
+          'Arial',
+          'Apple Color Emoji',
+          'Segoe UI Emoji',
+          'Segoe UI Symbol'
+        ]
       }
     },
   },

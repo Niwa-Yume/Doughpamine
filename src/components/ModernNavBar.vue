@@ -50,7 +50,7 @@ const go = (path: string) => {
 .nav-tabs { display: flex; width: 100%; justify-content: space-around; align-items: stretch; }
 .nav-button { flex: 1 1 0; --background: transparent; --color: var(--ion-color-primary); --padding-start: 0; --padding-end: 0; margin: 0; border-radius: 0; height: 64px; flex-direction: column; gap: 4px; }
 .nav-button ion-icon { font-size: 22px; }
-.nav-button .label { font-size: 11.5px; font-weight: 600; letter-spacing: .4px; }
+.nav-button .label { font-size: 11.5px; font-weight: 600; letter-spacing: 0; }
 .nav-button.active { --color: var(--ion-color-primary-contrast); background: var(--ion-color-primary); }
 .nav-button.active ion-icon { filter: drop-shadow(0 1px 1px rgba(0,0,0,0.15)); }
 .nav-button.active .label { color: var(--ion-color-primary-contrast); }

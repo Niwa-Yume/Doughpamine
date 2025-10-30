@@ -1,195 +1,56 @@
 /* Palette centrale (source de vérité)
-   Fond principal (crème): #F2ECE1
-   Texte primaire (brun): #7B5E3B
-   Accent / Boutons secondaires (beige chaud): #DCC7A5
-   Bouton d'action spécial (vert doux): #A7C08B
-   Surlignage / séparateurs (beige chaud clair): #DCC7A5 (même que accent)
+    Fond principal (crème): #F2E5CA
+    Texte principal (blanc):#FFFFFF
+    Marron bouton : #955934;
+    brune icon et fond : #633216;
+
 */
 
 /* Intégration Tailwind v4 */
 @import "tailwindcss";
 
 /* Police moderne et lisible pour l'UI */
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap');
+/* Chargée via <link> dans index.html pour de meilleures perfs */
 
 /* Variables CSS personnalisées + mapping Ionic */
 :root {
   /* Couleurs brutes */
-  --app-color-bg: #f2e5cb;
-  --app-color-text: #7B5E3B;
-  --app-color-accent: #DCC7A5;
-  --app-color-accent-rgb: 220,199,165;
-  --app-color-action: #A7C08B;
-  --app-color-action-rgb: 167,192,139;
-  --app-color-highlight: #DCC7A5;
-  /* Accents lumineux pour la dopamine visuals */
-  --app-color-gold: #ffb347;         /* doré doux */
-  --app-color-fire: #ff8a00;         /* orange feu */
-  --app-color-mint: #a7e8bd;         /* vert menthe lumineux */
-  --app-color-rose: #ffb3ab;         /* rose pain chaud */
+  --app-color-bg: #F2E5CA;
+  --app-color-text: #FFFFFF;
+
+  /* Police globale Ionic + app */
+  --ion-font-family: 'ADLaM Display', ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
 
   /* Ionic background / texte */
   --ion-background-color: var(--app-color-bg);
-  --ion-background-color-rgb: 242,236,225;
   --ion-text-color: var(--app-color-text);
-  --ion-text-color-rgb: 123,94,59;
+  --ion-color-primary: #955934;
 
-  /* Palette Ionic PRIMARY = Brun */
-  --ion-color-primary: #7B5E3B;
-  --ion-color-primary-rgb: 123,94,59;
-  --ion-color-primary-contrast: #f2e5cb;
-  --ion-color-primary-contrast-rgb: 242,236,225;
-  --ion-color-primary-shade: #6d5335; /* approx -10% */
-  --ion-color-primary-tint: #896b47;  /* approx +10% */
 
-  /* SECONDARY = Accent beige chaud */
-  --ion-color-secondary: var(--app-color-accent);
-  --ion-color-secondary-rgb: var(--app-color-accent-rgb);
-  --ion-color-secondary-contrast: #7B5E3B;
-  --ion-color-secondary-contrast-rgb: 123,94,59;
-  --ion-color-secondary-shade: #c5b393;
-  --ion-color-secondary-tint: #e0cfb3;
 
-  /* TERTIARY = accent lumineux (orange feu/doré) */
-  --ion-color-tertiary: var(--app-color-fire);
-  --ion-color-tertiary-rgb: 255,138,0;
-  --ion-color-tertiary-contrast: #3b2100;
-  --ion-color-tertiary-contrast-rgb: 59,33,0;
-  --ion-color-tertiary-shade: #e67c00;
-  --ion-color-tertiary-tint: #ff9a26;
-
-  /* SUCCESS = Vert doux (action spécial) */
-  --ion-color-success: var(--app-color-action);
-  --ion-color-success-rgb: var(--app-color-action-rgb);
-  --ion-color-success-contrast: #2f3a25;
-  --ion-color-success-contrast-rgb: 47,58,37;
-  --ion-color-success-shade: #94ac7c;
-  --ion-color-success-tint: #b3c99f;
-
-  /* UTILITAIRES */
-  --ion-color-light: var(--app-color-bg);
-  --ion-color-light-contrast: var(--app-color-text);
-  --ion-color-medium: var(--app-color-accent);
-  --ion-color-medium-contrast: var(--app-color-text);
-
-  color-scheme: light;
+  /*Style qui vient de Figma pour cohérence de composants Ionic */
+  --block-shadow-small: 2px 4px 0px 0px rgba(0, 0, 0, 1);
+  --h1-font-family: "ADLaM Display", Helvetica;
+  --h1-font-size: 43.83052444458008px;
+  --h1-font-style: normal;
+  --h1-font-weight: 400;
+  --h1-letter-spacing: -0.8766104888916015px;
+  --h1-line-height: normal;
+  --marron: rgba(149, 89, 52, 1);
+  --pure-white: rgba(255, 255, 255, 1);
+  --shadow: 2px 4px 0px 0px rgba(0, 0, 0, 1);
+  --couleurs-icones: rgba(99, 50, 22, 1);
+  --dark-pure-black: rgba(0, 0, 0, 1);
 }
 
-html, body, #app, ion-app, ion-page, ion-content {
-  background: var(--ion-background-color);
-  color: var(--ion-text-color);
-  -webkit-font-smoothing: antialiased;
-  font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
-  min-height: 100%;
+
+html, body, #app {
+  font-family: var(--ion-font-family);
+  letter-spacing: normal; /* éviter le tracking global excessif avec une police display */
 }
 
-/* ion-content part background (Safari/iOS) */
-ion-content::part(background) { background: var(--ion-background-color); }
-
-/* Toolbar / header */
-ion-header, ion-toolbar {
-  --background: var(--ion-background-color);
-  --color: var(--ion-text-color);
-  border-bottom: 1px solid var(--app-color-highlight);
-}
-
-/* Boutons génériques Ionic */
-ion-button { --border-radius: 12px; font-weight: 600; }
-
-/* Primary (par défaut) = brun */
-ion-button, ion-button[fill="solid"], .btn-primary {
-  --background: var(--ion-color-primary);
-  --background-hover: var(--ion-color-primary-tint);
-  --background-activated: var(--ion-color-primary-shade);
-  --color: var(--ion-color-primary-contrast);
-}
-
-/* Secondary = accent beige */
-ion-button[color="secondary"], .btn-accent {
-  --background: var(--ion-color-secondary);
-  --background-hover: var(--ion-color-secondary-tint);
-  --background-activated: var(--ion-color-secondary-shade);
-  --color: var(--ion-color-secondary-contrast);
-}
-
-/* Tertiary = feu/dopamine */
-ion-button[color="tertiary"], .btn-tertiary {
-  --background: var(--ion-color-tertiary);
-  --background-hover: var(--ion-color-tertiary-tint);
-  --background-activated: var(--ion-color-tertiary-shade);
-  --color: var(--ion-color-tertiary-contrast);
-}
-
-/* Success = action spécial vert */
-ion-button[color="success"], .btn-action {
-  --background: var(--ion-color-success);
-  --background-hover: var(--ion-color-success-tint);
-  --background-activated: var(--ion-color-success-shade);
-  --color: var(--ion-color-success-contrast);
-}
-
-/* Outline styles */
-ion-button[fill="outline"] {
-  --border-color: var(--ion-color-primary);
-  --color: var(--ion-color-primary);
-}
-ion-button[color="secondary"][fill="outline"] { --border-color: var(--ion-color-secondary); --color: var(--ion-color-secondary); }
-ion-button[color="success"][fill="outline"] { --border-color: var(--ion-color-success); --color: var(--ion-color-success); }
-ion-button[color="tertiary"][fill="outline"] { --border-color: var(--ion-color-tertiary); --color: var(--ion-color-tertiary); }
-
-/* Liens */
-a:hover { text-decoration: underline; }
-
-/* Séparateurs / cartes simples */
-.separator, hr { border: 0; height: 1px; background: var(--app-color-highlight); }
-.card, .surface, ion-card {
-  background: #ffffff;
-  border: 1px solid var(--app-color-highlight);
-  border-radius: 16px;
-  padding: 1rem;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.04);
-}
-
-/* Text utilities */
-.text-accent { color: var(--app-color-accent); }
-.text-action { color: var(--app-color-action); }
-.bg-accent { background: var(--app-color-accent); }
-.bg-action { background: var(--app-color-action); }
-
-/* Form elements */
-ion-input, ion-textarea, ion-select, ion-item {
-  --background: rgba(255,255,255,0.9);
-  --color: var(--ion-text-color);
-  --border-radius: 12px;
-}
-ion-item { --inner-padding-end: 12px; --inner-padding-start: 12px; }
-
-/* Classes bouton fallback (remplace @apply) */
-.btn-primary, .btn-accent, .btn-action, .btn-tertiary {
-  font-size: 15px;
-  padding: 0.5rem 1rem;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-}
-
-/* Accessibilité focus */
-:focus-visible { outline: 2px solid var(--ion-color-primary); outline-offset: 2px; }
-
-/* Utilitaires visuels pour 2025 style */
-.glass-surface {
-  background: rgba(255,255,255,0.55);
-  border: 1px solid rgba(123,94,59,0.16);
-  box-shadow: 0 8px 24px rgba(0,0,0,0.08), inset 0 1px 0 rgba(255,255,255,0.4);
-  backdrop-filter: blur(12px);
-  border-radius: 20px;
-}
-.soft-depth {
-  box-shadow: 6px 6px 18px rgba(139, 117, 92, 0.18), -6px -6px 18px rgba(255,255,255,0.6);
-}
-.gradient-hero {
-  background: radial-gradient(1200px 600px at 70% -10%, rgba(255, 180, 120, 0.35), transparent 60%),
-              radial-gradient(1000px 500px at 0% 0%, rgba(167, 232, 189, 0.25), transparent 60%),
-              radial-gradient(800px 400px at 100% 100%, rgba(255, 179, 171, 0.25), transparent 50%),
-              var(--ion-background-color);
+/* Neutraliser l’espacement et la mise en majuscules par défaut des boutons Ionic (Material) */
+ion-button {
+  letter-spacing: normal;
+  text-transform: none;
 }
