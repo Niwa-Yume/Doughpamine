@@ -1,6 +1,6 @@
 import { ref, computed, onMounted } from 'vue';
 import { supabase } from '@/lib/supabaseClient';
-import type { User, Session } from '@supabase/supabase-js';
+import type { User } from '@supabase/supabase-js';
 
 const user = ref<User | null>(null);
 const sessionLoaded = ref(false);
@@ -46,4 +46,3 @@ export function useAuth() {
     refreshSession: initSession,
   };
 }
-

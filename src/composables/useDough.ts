@@ -29,7 +29,9 @@ function writeLocal(val: Dough | null) {
   try {
     if (val) localStorage.setItem('demo_dough', JSON.stringify(val))
     else localStorage.removeItem('demo_dough')
-  } catch {}
+  } catch {
+    // Ignorer erreurs de quota/localStorage indisponible
+  }
 }
 
 export function useDough() {
@@ -101,7 +103,9 @@ export function useDough() {
         const payload = { ...dough.value }
         await supabase.from('doughs').upsert(payload, { onConflict: 'id' })
       }
-    } catch {}
+    } catch {
+      // Ignorer erreurs réseau/schéma pendant la persistance best-effort
+    }
   }
 
   async function feed() {
@@ -148,4 +152,3 @@ export function useDough() {
     lastFedHuman,
   }
 }
-

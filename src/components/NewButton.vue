@@ -1,5 +1,17 @@
 <template>
-  <div :class="['new-button', className]">
+  <div
+    :class="['new-button', className, { 'is-pressed': pressed }]"
+    role="button"
+    tabindex="0"
+    @pointerdown="onDown"
+    @pointerup="onUp"
+    @pointercancel="onUp"
+    @pointerleave="onUp"
+    @keydown.space.prevent="onKeyboardPress"
+    @keydown.enter.prevent="onKeyboardPress"
+    @keyup.space.prevent="onKeyboardRelease"
+    @keyup.enter.prevent="onKeyboardRelease"
+  >
     <div :class="['text', textClassName]">
       <slot>{{ text }}</slot>
     </div>
@@ -8,21 +20,43 @@
 
 <script lang="ts">
 import { defineComponent } from "vue";
+// Haptics optionnel (Capacitor); encapsulé pour ne pas casser en web pur
+let Haptics: any = null;
+try {
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
+  Haptics = require('@capacitor/haptics').Haptics;
+} catch {
+  // Haptics non disponible (web), on ignore
+}
 
 export default defineComponent({
   name: "NewButton",
   props: {
-    className: {
-      type: String,
-      default: "",
+    className: { type: String, default: "" },
+    text: { type: String, default: "NOURRIR" },
+    textClassName: { type: String, default: "" },
+  },
+  data() {
+    return { pressed: false };
+  },
+  methods: {
+    onDown() {
+      this.pressed = true;
+      // Retour haptique léger si disponible
+      if (Haptics?.impact) {
+        Haptics.impact({ style: 'light' }).catch(() => {});
+      }
     },
-    text: {
-      type: String,
-      default: "NOURRIR",
+    onUp() {
+      this.pressed = false;
     },
-    textClassName: {
-      type: String,
-      default: "",
+    onKeyboardPress() {
+      this.onDown();
+    },
+    onKeyboardRelease() {
+      this.onUp();
+      // émet un click clavier logique
+      this.$emit?.('click');
     },
   },
 });
@@ -39,18 +73,27 @@ export default defineComponent({
   display: inline-flex;
   gap: 10px;
   justify-content: center;
-  left: 609px;
   overflow: hidden;
   padding: 15px 85px;
-  position: relative;
-  top: 648px;
+  /* Retrait du positionnement spécifique à une page */
+  cursor: pointer;            /* pointeur interactif */
+  user-select: none;          /* évite la sélection pendant la pression */
+  touch-action: manipulation; /* améliore la réactivité mobile */
+  transition: transform 120ms ease, box-shadow 120ms ease, filter 120ms ease;
+}
+
+/* Effet pressé: léger enfoncement + ombre réduite + léger fondu */
+.new-button.is-pressed {
+  transform: translateY(2px) scale(0.98);
+  box-shadow: 1px 2px 0 0 rgba(0, 0, 0, 0.85);
+  filter: brightness(0.95);
 }
 
 .new-button .text {
   align-items: center;
   color: var(--pure-white);
   display: flex;
-  font-family: "ADLaM Display-Regular", Helvetica;
+  font-family: "ADLaM Display-Regular", Helvetica, sans-serif;
   font-size: 18px;
   font-weight: 800;
   justify-content: center;
