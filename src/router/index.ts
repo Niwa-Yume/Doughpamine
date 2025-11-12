@@ -17,7 +17,7 @@ const routes: Array<RouteRecordRaw> = [
     path: '/home',
     name: 'Home',
     component: HomePage,
-    meta: { title: 'Accueil' }
+    meta: { title: 'Accueil', requiresAuth: true }
   },
   {
     path: '/create-dough',
