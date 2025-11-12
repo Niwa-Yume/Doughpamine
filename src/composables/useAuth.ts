@@ -13,11 +13,9 @@ async function initSession() {
 }
 
 supabase.auth.onAuthStateChange((event, session) => {
-  console.log('[useAuth] onAuthStateChange:', event, 'user:', session?.user?.email || null);
   user.value = session?.user ?? null;
   // Assure que sessionLoaded est positionné même si initSession n'a pas encore été appelé
   if (!sessionLoaded.value) {
-    console.log('[useAuth] sessionLoaded passé à true');
     sessionLoaded.value = true;
   }
 });
@@ -35,15 +33,9 @@ async function signUp(email: string, password: string) {
 }
 
 async function signOut() {
-  console.log('[useAuth] signOut appelé');
   const { error } = await supabase.auth.signOut();
-  if (error) {
-    console.error('[useAuth] Erreur signOut:', error);
-    throw error;
-  }
-  console.log('[useAuth] signOut réussi, onAuthStateChange va mettre user à null');
-  // Ne pas mettre user.value = null ici, laisse onAuthStateChange le faire
-  // pour éviter les doubles mises à jour et problèmes de timing
+  if (error) throw error;
+  // user.value sera mis à null automatiquement par onAuthStateChange
 }
 
 // Google OAuth (Web)

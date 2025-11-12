@@ -52,7 +52,7 @@ import { IonPage, IonContent } from '@ionic/vue';
 import { useRouter } from 'vue-router';
 import { useAuth } from '@/composables/useAuth';
 import { supabase } from '@/lib/supabaseClient';
-import { ref, watch } from 'vue';
+import { ref, watch, onMounted } from 'vue';
 
 interface SimpleDough { id: string; name: string; status?: string; image: string }
 
@@ -68,12 +68,12 @@ const deleting = ref(false);
 const message = ref('');
 const errorMsg = ref('');
 
+// Charge les données utilisateur quand user change OU au montage du composant
 watch(user, (u) => {
-  console.log('[ProfilePage] user changé:', u?.email || null);
   email.value = u?.email || '';
   username.value = (u?.user_metadata as any)?.username || '';
   if (u) fetchDoughs();
-});
+}, { immediate: true }); // immediate: true pour charger dès le montage
 
 // La redirection est gérée automatiquement par le router onAuthStateChange
 // Pas besoin de la dupliquer ici pour éviter les boucles
@@ -144,13 +144,10 @@ async function saveProfile() {
 async function logout() {
   signingOut.value = true; errorMsg.value=''; message.value='';
   try {
-    console.log('[ProfilePage] Déconnexion en cours...');
     await signOut();
-    console.log('[ProfilePage] Déconnexion réussie');
-    // La redirection sera gérée automatiquement par le router onAuthStateChange
+    // La redirection sera gérée automatiquement par App.vue onAuthStateChange
   }
   catch (e: any) {
-    console.error('[ProfilePage] Erreur déconnexion:', e);
     errorMsg.value = e.message || 'Erreur déconnexion';
   }
   finally { signingOut.value=false; }
