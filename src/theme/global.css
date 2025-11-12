@@ -41,12 +41,23 @@
   --shadow: 2px 4px 0px 0px rgba(0, 0, 0, 1);
   --couleurs-icones: rgba(99, 50, 22, 1);
   --dark-pure-black: rgba(0, 0, 0, 1);
-}
 
+  /* Variables globales complémentaires pour les pages Score/Profil */
+  --title-color: #4b4b4b;           /* Titres sombres */
+  --text-color: #000000;            /* Texte par défaut noir */
+  --progress-bg: #58cc02;           /* Fond barre de progression */
+  --progress-value: #ffc800;        /* Valeur barre de progression */
+
+  /* Familles de police (déjà utilisées dans l’app) */
+  --font-display: 'ADLaM Display', cursive, sans-serif;
+  --font-body: 'Roboto', Arial, sans-serif;
+}
 
 html, body, #app {
   font-family: var(--ion-font-family);
   letter-spacing: normal; /* éviter le tracking global excessif avec une police display */
+  /* Couleur de texte par défaut de l’app si besoin */
+  color: var(--text-color);
 }
 
 /* Neutraliser l’espacement et la mise en majuscules par défaut des boutons Ionic (Material) */

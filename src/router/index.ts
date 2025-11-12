@@ -73,10 +73,14 @@ router.beforeEach(async (to, _from, next) => {
     return;
   }
   if (['/auth','/login','/register','/signup'].includes(to.path) && authed) {
-    next('/profile');
+    const redirect = (to.query?.redirect as string) || '/profile';
+    next(redirect);
     return;
   }
   next();
 });
+
+// La redirection onAuthStateChange est maintenant gérée dans App.vue avec useIonRouter
+// pour une meilleure intégration avec Ionic
 
 export default router

@@ -1,6 +1,5 @@
 <template>
   <ion-page>
-    <ModernNavBar />
     <ion-content class="ion-padding">
       <div class="chat-container">
         <iframe
@@ -17,7 +16,6 @@
 
 <script setup lang="ts">
 import { IonPage, IonContent } from '@ionic/vue';
-import ModernNavBar from '@/components/ModernNavBar.vue';
 import { onMounted, nextTick } from 'vue';
 
 onMounted(() => {
