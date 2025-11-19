@@ -6,30 +6,32 @@
         class="bouton-crer-levain"
         text="CRÉER UN LEVAIN"
         textClassName="new-button-instance"
+        @click="goToCreation"
     />
     <NewButton
-        class="bouton-lier-levain"
-        text="LIER UN LEVAIN"
+        class="bouton-lier-levain variant-marron-clair"
+        text="LIER UN LEVAIN EXISTANT"
         textClassName="design-component-instance-node"
+        @click="goToLiaison"
     />
   </div>
 </template>
 
-<script lang="ts">
-import { defineComponent } from "vue";
+<script setup lang="ts">
+import { ref } from "vue";
+import { useRouter } from "vue-router";
 import NewButton from "../components/NewButton.vue";
 
-export default defineComponent({
-  name: "ChoixLevain",
-  components: {
-    NewButton,
-  },
-  data() {
-    return {
-      mascotteIllustration: "/assets/mascott/Version de base.png",
-    } as const;
-  },
-});
+const router = useRouter();
+const mascotteIllustration = ref("/assets/mascott/Version de base.png");
+
+function goToCreation() {
+  router.push('/creation-levain');
+}
+
+function goToLiaison() {
+  router.push('/liaison-levain');
+}
 </script>
 
 <style>
@@ -51,8 +53,8 @@ export default defineComponent({
   font-weight: var(--h1-font-weight);
   height: 114px;
   justify-content: center;
-  margin-left: 54px;
-  margin-top: 107px;
+  margin-left: 50px;
+  margin-top: 10px;
   text-align: center;
   width: 294px;
 }

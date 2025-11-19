@@ -6,6 +6,8 @@ import ScorePage from '../views/ScorePage.vue';
 import ProfilePage from '../views/ProfilePage.vue';
 import AuthPage from '../views/AuthPage.vue';
 import CreateDough from '../views/CreateDough.vue';
+import LiaisonLevainPage from '../views/LiaisonLevainPage.vue';
+import CreationLevainPage from '../views/CreationLevainPage.vue';
 import { supabase } from '@/lib/supabaseClient';
 
 const routes: Array<RouteRecordRaw> = [
@@ -24,6 +26,18 @@ const routes: Array<RouteRecordRaw> = [
     name: 'CreateDough',
     component: CreateDough,
     meta: { title: 'Mon Levain', requiresAuth: true }
+  },
+  {
+    path: '/liaison-levain',
+    name: 'LiaisonLevain',
+    component: LiaisonLevainPage,
+    meta: { title: 'Liaison du Levain', requiresAuth: true }
+  },
+  {
+    path: '/creation-levain',
+    name: 'CreationLevain',
+    component: CreationLevainPage,
+    meta: { title: 'Création du Levain', requiresAuth: true }
   },
   {
     path: '/chat',

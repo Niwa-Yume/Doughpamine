@@ -1,6 +1,6 @@
 <template>
   <ion-page>
-    <ion-content class="ion-padding">
+    <ion-content :scroll-y="false">
       <main class="profile-page" v-if="sessionLoaded">
         <header class="profile-header">
           <a href="#" class="back-button" @click.prevent="goBack" aria-label="Retour">
@@ -175,10 +175,14 @@ async function deleteAccount() {
   border-radius: 15px;
   width: 100%;
   max-width: 390px;
-  padding: 48px 24px 40px;
+  padding: 20px 24px 20px;
   display: flex;
   flex-direction: column;
   align-items: center;
+  min-height: 100vh;
+  max-height: 100vh;
+  overflow: hidden;
+  justify-content: flex-start;
 }
 .profile-header {
   position: relative;
@@ -186,18 +190,18 @@ async function deleteAccount() {
   display: flex;
   justify-content: center;
   align-items: center;
-  margin-bottom: 53px;
+  margin-bottom: 25px;
 }
 .back-button { position: absolute; left: 16px; top:50%; transform: translateY(-50%); height:44px; }
 .back-button img { width:59px; height:44px; display:block; }
-.profile-title { color: var(--color-text-dark); font-family: var(--font-display); font-weight:400; font-size:44px; line-height:1.3; text-align:center; margin:0; }
+.profile-title { color: var(--color-text-dark); font-family: var(--font-display); font-weight:400; font-size:36px; line-height:1.2; text-align:center; margin:0; }
 
-.profile-form { display:flex; flex-direction:column; gap:36px; width:100%; max-width:294px; margin-bottom:41px; }
+.profile-form { display:flex; flex-direction:column; gap:20px; width:100%; max-width:294px; margin-bottom:20px; }
 .form-input { background-color: var(--color-white); padding:17px 13px; border-radius:10px; box-shadow: inset 0 0 5px 3px rgba(0,0,0,0.25); border:none; font-family: var(--font-display); font-weight:400; font-size:16px; color: var(--color-text-black); width:100%; }
 .form-input::placeholder { color: var(--color-text-black); opacity:1; }
 
-.sourdough-section { width:100%; display:flex; flex-direction:column; align-items:center; margin-bottom:58px; }
-.sourdough-title { color: var(--color-text-black); font-family: var(--font-body); font-weight:700; font-size:20px; margin:0 0 36px 0; }
+.sourdough-section { width:100%; display:flex; flex-direction:column; align-items:center; margin-bottom:25px; }
+.sourdough-title { color: var(--color-text-black); font-family: var(--font-body); font-weight:700; font-size:18px; margin:0 0 20px 0; }
 .sourdough-list { display:flex; justify-content:space-between; width:100%; gap:16px; }
 .sourdough-card { display:flex; flex-direction:column; align-items:center; gap:10px; flex:1; }
 .sourdough-img { width:60px; height:60px; border-radius:10px; object-fit:cover; }
@@ -205,7 +209,7 @@ async function deleteAccount() {
 .delete-sourdough-btn { background-color: var(--color-red-dark); border-radius:10px; padding:7px 12px; color: var(--color-text-light); font-family: var(--font-display); font-weight:400; font-size:8px; white-space:nowrap; width:100%; max-width:109px; }
 .empty-dough { font-size:14px; color: var(--color-text-black); }
 
-.main-actions { display:flex; flex-direction:column; gap:16px; width:100%; max-width:295px; margin-bottom:61px; }
+.main-actions { display:flex; flex-direction:column; gap:12px; width:100%; max-width:295px; margin-bottom:20px; }
 .btn { padding:15px; border-radius:4000px; color: var(--color-text-light); font-family: var(--font-display); font-weight:400; font-size:18px; width:100%; border:2px solid var(--color-text-black); box-shadow:2px 4px 0 0 var(--color-text-black); }
 .save-btn { background-color: var(--color-brown); }
 .disconnect-btn { background-color: var(--color-orange-brown); }

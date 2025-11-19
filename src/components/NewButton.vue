@@ -48,15 +48,17 @@ export default defineComponent({
       }
     },
     onUp() {
-      this.pressed = false;
+      if (this.pressed) {
+        this.pressed = false;
+        // émet un click lors du relâchement
+        this.$emit('click');
+      }
     },
     onKeyboardPress() {
       this.onDown();
     },
     onKeyboardRelease() {
       this.onUp();
-      // émet un click clavier logique
-      this.$emit?.('click');
     },
   },
 });
@@ -87,6 +89,11 @@ export default defineComponent({
   transform: translateY(2px) scale(0.98);
   box-shadow: 1px 2px 0 0 rgba(0, 0, 0, 0.85);
   filter: brightness(0.95);
+}
+
+/* Variante de couleur marron clair */
+.new-button.variant-marron-clair {
+  background-color: #DA9942;
 }
 
 .new-button .text {
