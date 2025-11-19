@@ -1,181 +1,118 @@
 <template>
-  <div class="choix-levain">
-    <div class="titre-page-choix">Création du levain</div>
-    <img class="mascotte" alt="Mascotte" :src="mascotteIllustration" />
-    <NewButton
-        class="bouton-crer-levain"
+  <div class="create-dough-page app-container">
+    <h1 class="page-title">Création du levain</h1>
+
+    <img
+      class="create-dough-page__mascot"
+      alt="Mascotte de levain"
+      :src="mascotIllustration"
+    />
+
+    <div class="create-dough-page__actions">
+      <NewButton
         text="CRÉER UN LEVAIN"
-        textClassName="new-button-instance"
-        @click="goToCreation"
-    />
-    <NewButton
-        class="bouton-lier-levain variant-marron-clair"
+        variant="primary"
+        class="create-dough-page__button"
+        @click="navigateToCreation"
+      />
+
+      <NewButton
         text="LIER UN LEVAIN EXISTANT"
-        textClassName="design-component-instance-node"
-        @click="goToLiaison"
-    />
+        variant="secondary"
+        class="create-dough-page__button"
+        @click="navigateToLiaison"
+      />
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref } from "vue";
 import { useRouter } from "vue-router";
-import NewButton from "../components/NewButton.vue";
+import NewButton from "@/components/NewButton.vue";
 
 const router = useRouter();
-const mascotteIllustration = ref("/assets/mascott/Version de base.png");
 
-function goToCreation() {
+// Assets
+const mascotIllustration = ref("/assets/mascott/Version de base.png");
+
+/**
+ * Navigue vers la page de création de levain
+ */
+function navigateToCreation(): void {
   router.push('/creation-levain');
 }
 
-function goToLiaison() {
+/**
+ * Navigue vers la page de liaison de levain existant
+ */
+function navigateToLiaison(): void {
   router.push('/liaison-levain');
 }
 </script>
 
-<style>
-.choix-levain {
-  background-color: #f2e5ca;
-  border-radius: 15px;
+<style scoped>
+.create-dough-page {
   display: flex;
   flex-direction: column;
-  height: 844px;
-  overflow: hidden;
-  width: 390px;
-}
-
-.choix-levain .titre-page-choix {
   align-items: center;
-  color: black;
-  display: flex;
-  font-size: var(--h1-font-size);
-  font-weight: var(--h1-font-weight);
-  height: 114px;
-  justify-content: center;
-  margin-left: 50px;
-  margin-top: 10px;
-  text-align: center;
-  width: 294px;
+  gap: var(--spacing-2xl);
+  padding-top: var(--spacing-xl);
+  padding-bottom: var(--spacing-xl);
 }
 
-.choix-levain .mascotte {
-  align-self: center;
-  aspect-ratio: 1;
-  height: 189px;
-  margin-left: 11px;
-  margin-top: 65px;
-  mix-blend-mode: darken;
+.create-dough-page__mascot {
   width: 189px;
+  height: 189px;
+  object-fit: contain;
+  mix-blend-mode: darken;
 }
 
-.choix-levain .bouton-crer-levain {
-  display: flex !important;
-  height: 57px !important;
-  left: unset !important;
-  margin-left: 48px !important;
-  margin-top: 81px !important;
-  top: unset !important;
-  width: 296px !important;
+.create-dough-page__actions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-lg);
+  width: 100%;
+  max-width: 296px;
 }
 
-.choix-levain .new-button-instance {
-  margin-left: -14.00px !important;
-  margin-right: -10.00px !important;
+.create-dough-page__button {
+  width: 100%;
+  height: var(--button-height-sm);
 }
 
-.choix-levain .bouton-lier-levain {
-  display: flex !important;
-  height: 57px !important;
-  left: unset !important;
-  margin-left: 48px !important;
-  margin-top: 24px !important;
-  top: unset !important;
-  width: 296px !important;
-}
-
-.choix-levain .design-component-instance-node {
-  margin-left: -5.00px !important;
-  margin-right: -1.00px !important;
-}
-
-/* ----------------------------- */
-/*      Responsive overrides     */
-/* ----------------------------- */
-/* Tablet */
+/* ========================================
+   RESPONSIVE - Tablet & Desktop
+   ======================================== */
 @media (min-width: 768px) {
-  .choix-levain {
-    /* Étend la carte tout en conservant l'empilement vertical */
-    width: 100%;
-    max-width: 720px;
-    height: auto;
-    min-height: 100vh;
-    margin: 0 auto; /* centre sur l'écran */
-    padding: 40px 24px;
-    border-radius: 20px;
+  .create-dough-page {
+    gap: var(--spacing-3xl);
+    padding-top: var(--spacing-2xl);
   }
 
-  .choix-levain .titre-page-choix {
-    /* On abandonne les décalages fixes pour centrer proprement */
-    margin-left: 0;
-    margin-top: 24px;
-    margin-right: 0;
-    width: auto;
-    height: auto;
-    font-size: calc(var(--h1-font-size) * 1.2);
-  }
-
-  .choix-levain .mascotte {
-    margin-left: 0;
-    margin-top: 40px;
+  .create-dough-page__mascot {
     width: 240px;
     height: 240px;
   }
 
-  .choix-levain .bouton-crer-levain,
-  .choix-levain .bouton-lier-levain {
-    /* Les boutons prennent une largeur fluide et sont centrés */
-    margin-left: auto !important;
-    margin-right: auto !important;
-    width: min(420px, 80%) !important;
-  }
-
-  .choix-levain .bouton-crer-levain {
-    margin-top: 48px !important;
-  }
-
-  .choix-levain .bouton-lier-levain {
-    margin-top: 24px !important;
-  }
-
-  .choix-levain .new-button-instance,
-  .choix-levain .design-component-instance-node {
-    margin-left: 0 !important;
-    margin-right: 0 !important;
+  .create-dough-page__actions {
+    max-width: 420px;
   }
 }
 
-/* Desktop */
 @media (min-width: 1024px) {
-  .choix-levain {
-    max-width: 960px;
-    padding: 56px 32px;
-    border-radius: 24px;
+  .create-dough-page {
+    gap: var(--spacing-4xl);
+    padding-top: var(--spacing-3xl);
   }
 
-  .choix-levain .titre-page-choix {
-    font-size: calc(var(--h1-font-size) * 1.4);
-  }
-
-  .choix-levain .mascotte {
+  .create-dough-page__mascot {
     width: 300px;
     height: 300px;
-    margin-top: 48px;
   }
 
-  .choix-levain .bouton-crer-levain,
-  .choix-levain .bouton-lier-levain {
-    width: min(520px, 60%) !important;
+  .create-dough-page__actions {
+    max-width: 520px;
   }
 }
 </style>

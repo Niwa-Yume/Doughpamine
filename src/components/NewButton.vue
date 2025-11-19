@@ -1,25 +1,41 @@
+<!--
+  NewButton - Bouton interactif avec effet de pression et retour haptique
+
+  Props:
+  - className: Classes CSS additionnelles (défaut: "")
+  - text: Texte du bouton (défaut: "NOURRIR")
+  - textClassName: Classes CSS pour le texte (défaut: "")
+  - variant: Variante de couleur ('primary' | 'secondary') (défaut: 'primary')
+
+  Événements:
+  - click: Émis au relâchement du bouton (après la pression)
+
+  Exemple:
+  <NewButton text="CONFIRMER" variant="secondary" @click="handleClick" />
+-->
 <template>
   <div
-    :class="['new-button', className, { 'is-pressed': pressed }]"
+    :class="['new-button', className, variantClass, { 'is-pressed': isPressed }]"
     role="button"
     tabindex="0"
-    @pointerdown="onDown"
-    @pointerup="onUp"
-    @pointercancel="onUp"
-    @pointerleave="onUp"
-    @keydown.space.prevent="onKeyboardPress"
-    @keydown.enter.prevent="onKeyboardPress"
-    @keyup.space.prevent="onKeyboardRelease"
-    @keyup.enter.prevent="onKeyboardRelease"
+    @pointerdown="handlePressStart"
+    @pointerup="handlePressEnd"
+    @pointercancel="handlePressEnd"
+    @pointerleave="handlePressEnd"
+    @keydown.space.prevent="handlePressStart"
+    @keydown.enter.prevent="handlePressStart"
+    @keyup.space.prevent="handlePressEnd"
+    @keyup.enter.prevent="handlePressEnd"
   >
-    <div :class="['text', textClassName]">
+    <div :class="['new-button__text', textClassName]">
       <slot>{{ text }}</slot>
     </div>
   </div>
 </template>
 
 <script lang="ts">
-import { defineComponent } from "vue";
+import { defineComponent, computed } from "vue";
+
 // Haptics optionnel (Capacitor); encapsulé pour ne pas casser en web pur
 let Haptics: any = null;
 try {
@@ -32,76 +48,113 @@ try {
 export default defineComponent({
   name: "NewButton",
   props: {
-    className: { type: String, default: "" },
-    text: { type: String, default: "NOURRIR" },
-    textClassName: { type: String, default: "" },
+    className: {
+      type: String,
+      default: ""
+    },
+    text: {
+      type: String,
+      default: "NOURRIR"
+    },
+    textClassName: {
+      type: String,
+      default: ""
+    },
+    variant: {
+      type: String as () => 'primary' | 'secondary',
+      default: 'primary',
+      validator: (value: string) => ['primary', 'secondary'].includes(value),
+    }
   },
   data() {
-    return { pressed: false };
+    return {
+      isPressed: false
+    };
+  },
+  computed: {
+    /**
+     * Calcule la classe CSS de variante selon le prop
+     */
+    variantClass(): string {
+      return this.variant === 'secondary' ? 'variant-marron-clair' : '';
+    }
   },
   methods: {
-    onDown() {
-      this.pressed = true;
-      // Retour haptique léger si disponible
-      if (Haptics?.impact) {
-        Haptics.impact({ style: 'light' }).catch(() => {});
-      }
+    /**
+     * Gère le début de la pression (pointer/touch down)
+     * Déclenche l'animation et le retour haptique
+     */
+    handlePressStart() {
+      this.isPressed = true;
+      this.triggerHapticFeedback();
     },
-    onUp() {
-      if (this.pressed) {
-        this.pressed = false;
-        // émet un click lors du relâchement
+
+    /**
+     * Gère la fin de la pression (pointer/touch up)
+     * Émet l'événement click si le bouton était pressé
+     */
+    handlePressEnd() {
+      if (this.isPressed) {
+        this.isPressed = false;
         this.$emit('click');
       }
     },
-    onKeyboardPress() {
-      this.onDown();
-    },
-    onKeyboardRelease() {
-      this.onUp();
+
+    /**
+     * Déclenche un retour haptique léger si disponible (natif mobile)
+     */
+    triggerHapticFeedback() {
+      if (Haptics?.impact) {
+        Haptics.impact({ style: 'light' }).catch(() => {
+          // Ignore les erreurs silencieusement
+        });
+      }
     },
   },
 });
 </script>
 
-<style>
+<style scoped>
 .new-button {
   align-items: center;
-  background-color: var(--marron);
-  border: 2px solid;
-  border-color: var(--dark-pure-black);
-  border-radius: 4000px;
-  box-shadow: var(--block-shadow-small);
+  background-color: var(--color-primary);
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--border-radius-full);
+  box-shadow: var(--shadow-md);
   display: inline-flex;
   gap: 10px;
   justify-content: center;
   overflow: hidden;
-  padding: 15px 85px;
-  /* Retrait du positionnement spécifique à une page */
-  cursor: pointer;            /* pointeur interactif */
-  user-select: none;          /* évite la sélection pendant la pression */
-  touch-action: manipulation; /* améliore la réactivité mobile */
-  transition: transform 120ms ease, box-shadow 120ms ease, filter 120ms ease;
+  padding: var(--spacing-md) calc(var(--spacing-xl) * 2.5);
+  cursor: pointer;
+  user-select: none;
+  touch-action: manipulation;
+  transition: var(--transition-button);
 }
 
-/* Effet pressé: léger enfoncement + ombre réduite + léger fondu */
+/**
+ * Effet pressé: enfoncement + ombre réduite + léger fondu
+ * Utilisé pour le feedback visuel lors de l'interaction
+ */
 .new-button.is-pressed {
   transform: translateY(2px) scale(0.98);
-  box-shadow: 1px 2px 0 0 rgba(0, 0, 0, 0.85);
+  box-shadow: var(--shadow-sm);
   filter: brightness(0.95);
 }
 
-/* Variante de couleur marron clair */
+/**
+ * Variante secondaire - Marron clair
+ */
 .new-button.variant-marron-clair {
-  background-color: #DA9942;
+  background-color: var(--color-secondary);
 }
 
-.new-button .text {
+.new-button__text {
   align-items: center;
   color: var(--pure-white);
   display: flex;
-  font-family: "ADLaM Display-Regular", Helvetica, sans-serif;
-  font-size: 18px;
+  font-family: var(--font-display);
+  font-size: var(--font-size-lg);
   font-weight: 800;
   justify-content: center;
   letter-spacing: -0.36px;
@@ -111,3 +164,5 @@ export default defineComponent({
   width: fit-content;
 }
 </style>
+
+

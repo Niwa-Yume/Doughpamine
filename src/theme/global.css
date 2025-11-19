@@ -14,43 +14,134 @@
 
 /* Variables CSS personnalisées + mapping Ionic */
 :root {
+  /* ========================================
+     COULEURS - Palette centralisée
+     ======================================== */
   /* Couleurs brutes */
   --app-color-bg: #F2E5CA;
   --app-color-text: #FFFFFF;
+  --marron: #955934;
+  --marron-clair: #DA9942;
+  --marron-fonce: #633216;
+  --pure-white: #FFFFFF;
+  --dark-pure-black: #000000;
 
-  /* Police globale Ionic + app */
-  --ion-font-family: 'ADLaM Display', ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+  /* Couleurs sémantiques (facilite la maintenance) */
+  --color-primary: var(--marron);
+  --color-secondary: var(--marron-clair);
+  --color-background: var(--app-color-bg);
+  --color-surface: var(--pure-white);
+  --color-text-primary: var(--dark-pure-black);
+  --color-text-secondary: #4b4b4b;
+  --color-text-light: #757575;
+  --color-border: var(--dark-pure-black);
+  --color-icon: var(--marron-fonce);
 
-  /* Ionic background / texte */
-  --ion-background-color: var(--app-color-bg);
-  --ion-text-color: var(--app-color-text);
-  --ion-color-primary: #955934;
+  /* Couleurs de progression */
+  --color-progress-bg: #58cc02;
+  --color-progress-value: #ffc800;
 
+  /* Couleurs de feedback */
+  --color-success: #4caf50;
+  --color-error: #f44336;
+  --color-warning: #ff9800;
 
+  /* Couleurs du timer de levain */
+  --color-timer-green: #4caf50;   /* Levain nourri (> 12h) */
+  --color-timer-orange: #ff9800;  /* Levain commence à avoir faim (8-12h) */
+  --color-timer-red: #f44336;     /* Levain affamé (< 8h) */
 
-  /*Style qui vient de Figma pour cohérence de composants Ionic */
-  --block-shadow-small: 2px 4px 0px 0px rgba(0, 0, 0, 1);
-  --h1-font-family: "ADLaM Display", Helvetica;
-  --h1-font-size: 43.83052444458008px;
-  --h1-font-style: normal;
-  --h1-font-weight: 400;
-  --h1-letter-spacing: -0.8766104888916015px;
-  --h1-line-height: normal;
-  --marron: rgba(149, 89, 52, 1);
-  --pure-white: rgba(255, 255, 255, 1);
-  --shadow: 2px 4px 0px 0px rgba(0, 0, 0, 1);
-  --couleurs-icones: rgba(99, 50, 22, 1);
-  --dark-pure-black: rgba(0, 0, 0, 1);
-
-  /* Variables globales complémentaires pour les pages Score/Profil */
-  --title-color: #4b4b4b;           /* Titres sombres */
-  --text-color: #000000;            /* Texte par défaut noir */
-  --progress-bg: #58cc02;           /* Fond barre de progression */
-  --progress-value: #ffc800;        /* Valeur barre de progression */
-
-  /* Familles de police (déjà utilisées dans l’app) */
+  /* ========================================
+     TYPOGRAPHIE
+     ======================================== */
   --font-display: 'ADLaM Display', cursive, sans-serif;
   --font-body: 'Roboto', Arial, sans-serif;
+  --ion-font-family: 'ADLaM Display', ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+
+  /* Tailles de police (système modulaire) */
+  --font-size-xs: 12px;
+  --font-size-sm: 14px;
+  --font-size-base: 16px;
+  --font-size-lg: 18px;
+  --font-size-xl: 24px;
+  --font-size-2xl: 32px;
+  --font-size-3xl: 36.5px;
+  --font-size-4xl: 43.83px;
+
+  /* Titres Figma (compatibilité) */
+  --h1-font-family: "ADLaM Display", Helvetica;
+  --h1-font-size: var(--font-size-4xl);
+  --h1-font-style: normal;
+  --h1-font-weight: 400;
+  --h1-letter-spacing: -0.88px;
+  --h1-line-height: normal;
+
+  /* ========================================
+     ESPACEMENTS (système 4px pour cohérence)
+     ======================================== */
+  --spacing-xs: 4px;
+  --spacing-sm: 8px;
+  --spacing-md: 16px;
+  --spacing-lg: 24px;
+  --spacing-xl: 32px;
+  --spacing-2xl: 40px;
+  --spacing-3xl: 48px;
+  --spacing-4xl: 64px;
+
+  /* ========================================
+     OMBRES & BORDURES
+     ======================================== */
+  --shadow-sm: 1px 2px 0 0 rgba(0, 0, 0, 0.85);
+  --shadow-md: 2px 4px 0 0 rgba(0, 0, 0, 1);
+  --shadow-lg: 0px 4px 8px rgba(0, 0, 0, 0.3);
+  --shadow-button: 0px 1.3px 1.3px rgba(0, 0, 0, 0.17), 0px 0px 1.3px rgba(0, 0, 0, 0.08);
+
+  /* Compatibilité Figma */
+  --block-shadow-small: var(--shadow-md);
+  --shadow: var(--shadow-md);
+
+  /* Bordures */
+  --border-width: 2px;
+  --border-radius-sm: 4px;
+  --border-radius-md: 8px;
+  --border-radius-lg: 15px;
+  --border-radius-xl: 20px;
+  --border-radius-2xl: 24px;
+  --border-radius-full: 9999px;
+
+  /* ========================================
+     TRANSITIONS & ANIMATIONS
+     ======================================== */
+  --transition-fast: 120ms ease;
+  --transition-base: 200ms ease;
+  --transition-slow: 300ms ease;
+  --transition-button: transform var(--transition-fast),
+                       box-shadow var(--transition-fast),
+                       filter var(--transition-fast);
+
+  /* ========================================
+     DIMENSIONS COMMUNES
+     ======================================== */
+  --container-mobile: 390px;
+  --container-tablet: 720px;
+  --container-desktop: 960px;
+  --button-height-sm: 57px;
+  --button-height-md: 71px;
+  --input-height: 48px;
+
+  /* ========================================
+     CONFIGURATION IONIC
+     ======================================== */
+  --ion-background-color: var(--app-color-bg);
+  --ion-text-color: var(--app-color-text);
+  --ion-color-primary: var(--marron);
+
+  /* Alias compatibilité (anciens noms conservés pour ne rien casser) */
+  --title-color: var(--color-text-secondary);
+  --text-color: var(--color-text-primary);
+  --progress-bg: var(--color-progress-bg);
+  --progress-value: var(--color-progress-value);
+  --couleurs-icones: var(--color-icon);
 }
 
 html, body, #app {
@@ -65,3 +156,249 @@ ion-button {
   letter-spacing: normal;
   text-transform: none;
 }
+
+/* ========================================
+   CLASSES UTILITAIRES RÉUTILISABLES
+   ======================================== */
+
+/**
+ * Container - Page wrapper pour mobile-first
+ * Utilisé pour centrer le contenu et limiter la largeur
+ */
+.app-container {
+  width: 100%;
+  max-width: var(--container-mobile);
+  min-height: 100vh;
+  margin: 0 auto;
+  padding: 0 var(--spacing-lg);
+  background-color: var(--color-background);
+  border-radius: var(--border-radius-lg);
+  overflow: hidden;
+}
+
+@media (min-width: 768px) {
+  .app-container {
+    max-width: var(--container-tablet);
+    padding: var(--spacing-2xl) var(--spacing-lg);
+    border-radius: var(--border-radius-xl);
+  }
+}
+
+@media (min-width: 1024px) {
+  .app-container {
+    max-width: var(--container-desktop);
+    padding: var(--spacing-3xl) var(--spacing-xl);
+    border-radius: var(--border-radius-2xl);
+  }
+}
+
+/**
+ * Page Title - Titre de page cohérent
+ */
+.page-title {
+  font-family: var(--h1-font-family);
+  font-size: var(--h1-font-size);
+  font-weight: var(--h1-font-weight);
+  color: var(--color-text-primary);
+  text-align: center;
+  letter-spacing: var(--h1-letter-spacing);
+  line-height: var(--h1-line-height);
+  margin: var(--spacing-lg) 0;
+}
+
+@media (min-width: 768px) {
+  .page-title {
+    font-size: calc(var(--h1-font-size) * 1.2);
+  }
+}
+
+@media (min-width: 1024px) {
+  .page-title {
+    font-size: calc(var(--h1-font-size) * 1.4);
+  }
+}
+
+/**
+ * Section Title - Sous-titre de section
+ */
+.section-title {
+  font-family: var(--font-display);
+  font-size: var(--font-size-xl);
+  font-weight: 600;
+  color: var(--color-text-secondary);
+  margin: var(--spacing-xl) 0 var(--spacing-md);
+}
+
+/**
+ * Flexbox Utilities - Mise en page rapide
+ */
+.flex-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.flex-column {
+  display: flex;
+  flex-direction: column;
+}
+
+.flex-column-center {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+/**
+ * Card - Conteneur de contenu avec ombre
+ */
+.card {
+  background-color: var(--color-surface);
+  border-radius: var(--border-radius-md);
+  box-shadow: var(--shadow-md);
+  padding: var(--spacing-lg);
+  margin: var(--spacing-md) 0;
+}
+
+/**
+ * Button Base - Style de base pour les boutons personnalisés
+ */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--spacing-md) var(--spacing-xl);
+  font-family: var(--font-display);
+  font-size: var(--font-size-lg);
+  font-weight: 700;
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--border-radius-full);
+  cursor: pointer;
+  user-select: none;
+  touch-action: manipulation;
+  transition: var(--transition-button);
+  text-align: center;
+}
+
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.btn-primary {
+  background-color: var(--color-primary);
+  color: var(--pure-white);
+  box-shadow: var(--shadow-md);
+}
+
+.btn-primary:active:not(:disabled) {
+  transform: translateY(2px) scale(0.98);
+  box-shadow: var(--shadow-sm);
+  filter: brightness(0.95);
+}
+
+.btn-secondary {
+  background-color: var(--color-secondary);
+  color: var(--pure-white);
+  box-shadow: var(--shadow-md);
+}
+
+.btn-secondary:active:not(:disabled) {
+  transform: translateY(2px) scale(0.98);
+  box-shadow: var(--shadow-sm);
+  filter: brightness(0.95);
+}
+
+/**
+ * Input Base - Champs de formulaire cohérents
+ */
+.form-input {
+  width: 100%;
+  height: var(--input-height);
+  padding: 0 var(--spacing-md);
+  font-family: var(--font-body);
+  font-size: var(--font-size-base);
+  color: var(--color-text-primary);
+  background-color: var(--color-surface);
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--border-radius-md);
+  transition: border-color var(--transition-base), box-shadow var(--transition-base);
+}
+
+.form-input:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(149, 89, 52, 0.1);
+}
+
+.form-input::placeholder {
+  color: var(--color-text-light);
+}
+
+/**
+ * Loading & Empty States
+ */
+.loading-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 50vh;
+  font-family: var(--font-display);
+  font-size: var(--font-size-lg);
+  color: var(--color-text-secondary);
+}
+
+.empty-state {
+  text-align: center;
+  padding: var(--spacing-4xl) var(--spacing-lg);
+  color: var(--color-text-light);
+  font-family: var(--font-body);
+}
+
+/**
+ * Feedback Messages
+ */
+.feedback {
+  padding: var(--spacing-md);
+  border-radius: var(--border-radius-md);
+  margin: var(--spacing-md) 0;
+  font-family: var(--font-body);
+  text-align: center;
+}
+
+.feedback.success {
+  background-color: rgba(76, 175, 80, 0.1);
+  color: var(--color-success);
+  border: 1px solid var(--color-success);
+}
+
+.feedback.error {
+  background-color: rgba(244, 67, 54, 0.1);
+  color: var(--color-error);
+  border: 1px solid var(--color-error);
+}
+
+.feedback.warning {
+  background-color: rgba(255, 152, 0, 0.1);
+  color: var(--color-warning);
+  border: 1px solid var(--color-warning);
+}
+
+/**
+ * Spacing Utilities - Marges et paddings rapides
+ */
+.mt-sm { margin-top: var(--spacing-sm); }
+.mt-md { margin-top: var(--spacing-md); }
+.mt-lg { margin-top: var(--spacing-lg); }
+.mt-xl { margin-top: var(--spacing-xl); }
+
+.mb-sm { margin-bottom: var(--spacing-sm); }
+.mb-md { margin-bottom: var(--spacing-md); }
+.mb-lg { margin-bottom: var(--spacing-lg); }
+.mb-xl { margin-bottom: var(--spacing-xl); }
+
+.p-sm { padding: var(--spacing-sm); }
+.p-md { padding: var(--spacing-md); }
+.p-lg { padding: var(--spacing-lg); }
+.p-xl { padding: var(--spacing-xl); }

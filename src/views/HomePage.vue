@@ -1,130 +1,232 @@
+<!--
+  HomePage - Page d'accueil avec le levain et timer de nourrissage
+
+  Affiche :
+  - Widget AI Jotform pour assistance
+  - Timer circulaire visuel (24h)
+  - État du levain (actif/affamé/etc.)
+  - Bouton pour nourrir le levain
+-->
 <template>
-  <div class="v">
-    <div class="icon-de-profile">
-      <img class="vector-2" alt="Vector" :src="vector" />
-    </div>
+  <div class="home-page app-container">
     <!-- Widget AI Jotform via composant dédié -->
     <JotformAgent />
 
-    <div class="tat-du-levain">Actif</div>
-    <NewButton class="bouton-nourri-levain" />
-    <div class="levain-tat-de-base">
-      <img class="vector-3" alt="Vector" :src="mascotte" />
+    <!-- Timer circulaire avec le levain au centre -->
+    <div class="home-page__dough-section">
+      <DoughTimer
+        :lastFeedTime="lastFeedTime"
+        :size="240"
+        :contentSize="200"
+        :strokeWidth="6"
+        :showTimeLabel="true"
+        :acceleratedMode="DEBUG_ACCELERATED_MODE"
+        @timeExpired="handleTimerExpired"
+      >
+        <img
+          class="home-page__dough-image"
+          alt="Levain"
+          :src="doughGif"
+        />
+      </DoughTimer>
+
+      <!-- État du levain -->
+      <p class="home-page__status">{{ doughStatus }}</p>
     </div>
+
+    <!-- Bouton pour nourrir -->
+    <NewButton
+      text="NOURRIR"
+      class="home-page__feed-button"
+      @click="feedDough"
+    />
+
+    <!-- DEBUG: Contrôles de test du timer (À SUPPRIMER en production) -->
+    <TimerDebugControls
+      :lastFeedTime="lastFeedTime"
+      @updateTime="updateDebugTime"
+    />
   </div>
 </template>
 
-<script lang="ts">
-import { defineComponent } from "vue";
+<script setup lang="ts">
+import { ref, computed } from "vue";
 import NewButton from "@/components/NewButton.vue";
 import JotformAgent from "@/components/JotformAgent.vue";
+import DoughTimer from "@/components/DoughTimer.vue";
+import TimerDebugControls from "@/components/TimerDebugControls.vue";
 
-const mascotte = "/assets/gif/levain basique.gif";
-const vector = "/assets/SVG/vector.svg";
+// Assets
+const doughGif = ref("/assets/gif/levain basique.gif");
 
-export default defineComponent({
-  name: "HomePage",
-  components: {
-    NewButton,
-    JotformAgent,
-  },
-  data() {
-    return {
-      mascotte,
-      vector,
-    };
-  },
-});
-</script>
+/**
+ * Temps du dernier nourrissage
+ * TODO: Récupérer depuis Supabase ou localStorage
+ */
+const lastFeedTime = ref(new Date()); // Levain fraîchement nourri (pour test)
 
-<style>
-.v {
-  background-color: #f4e2c9;
-  border-radius: 15px;
-  height: 844px;
-  overflow: hidden;
-  position: relative;
-  width: 390px;
+/**
+ * MODE DEBUG : Active le mode accéléré pour voir le timer bouger
+ * 1 seconde réelle = 1 heure de levain
+ * À DÉSACTIVER EN PRODUCTION !
+ */
+const DEBUG_ACCELERATED_MODE = true; // ← Mettez à false pour désactiver
+
+// Si le mode accéléré est activé, on démarre avec 10h d'écart pour voir l'animation
+if (DEBUG_ACCELERATED_MODE) {
+  lastFeedTime.value = new Date(Date.now() - 10 * 1000); // 10 secondes = 10h
 }
 
-/* Ajout d’un décor à droite en arrière-plan pour l’effet carrousel */
-.v::after {
+/**
+ * Calcule le statut du levain selon le temps écoulé
+ */
+const doughStatus = computed(() => {
+  const elapsed = Date.now() - lastFeedTime.value.getTime();
+  const hoursElapsed = elapsed / (60 * 60 * 1000);
+
+  if (hoursElapsed < 12) {
+    return "Actif"; // Vert
+  } else if (hoursElapsed < 16) {
+    return "Affamé"; // Orange
+  } else if (hoursElapsed < 24) {
+    return "Très affamé"; // Rouge
+  } else {
+    return "Négligé"; // Au-delà de 24h
+  }
+});
+
+/**
+ * Nourrit le levain et réinitialise le timer
+ */
+function feedDough(): void {
+  lastFeedTime.value = new Date();
+
+  // TODO: Sauvegarder dans Supabase
+  // TODO: Augmenter le score/XP
+  // TODO: Changer l'animation du levain
+
+  console.log('Levain nourri !', lastFeedTime.value);
+}
+
+/**
+ * Gère l'expiration du timer (24h écoulées)
+ */
+function handleTimerExpired(): void {
+  console.warn('⚠️ Le levain n\'a pas été nourri depuis 24h !');
+
+  // TODO: Changer l'état du levain à "mort" ou "négligé"
+  // TODO: Envoyer une notification push
+  // TODO: Pénalité sur le score
+}
+
+/**
+ * Met à jour le temps pour le debug (temporaire)
+ */
+function updateDebugTime(newDate: Date): void {
+  lastFeedTime.value = newDate;
+}
+</script>
+
+<style scoped>
+.home-page {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-xl);
+  padding-top: var(--spacing-lg);
+  padding-bottom: var(--spacing-2xl);
+  position: relative;
+  min-height: 844px;
+}
+
+/**
+ * Décor d'arrière-plan (effet carrousel)
+ * Image de levain en transparence à droite
+ */
+.home-page::after {
   content: "";
   position: absolute;
-  top: 247px; /* aligné verticalement sur la mascotte */
-  right: -70px; /* un peu plus à droite qu’avant (-40px) */
-  width: 227px; /* même taille que le cercle */
-  height: 227px; /* même taille que le cercle */
+  top: 247px;
+  right: -70px;
+  width: 227px;
+  height: 227px;
   background: url("/assets/mascott/Version_de_base-removebg-preview.png") center / contain no-repeat;
-  opacity: 0.25; /* opacité douce pour le fond */
-  filter: drop-shadow(0 2px 0 rgba(0,0,0,.15));
+  opacity: 0.25;
+  filter: drop-shadow(0 2px 0 rgba(0, 0, 0, 0.15));
   pointer-events: none;
   z-index: 0;
 }
 
-.icon-de-profile {
-  height: 24px;
-  left: 251px;
-  position: absolute;
-  top: 76px;
-  width: 24px;
-  z-index: 1;
-}
-
-.vector-2 {
-  height: 25.00%;
-  left: 16.67%;
-  position: absolute;
-  top: 58.33%;
-  width: 58.33%;
-}
-
-.tat-du-levain {
-  align-items: center;
-  color: #000000;
+.home-page__dough-section {
   display: flex;
-  font-size: 36.5px;
-  font-weight: 400;
-  height: 48px;
-  justify-content: center;
-  left: 153px;
-  letter-spacing: -0.73px;
-  line-height: normal;
-  position: absolute;
-  top: 520px;
-  width: 82px;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-lg);
   z-index: 1;
+  margin-top: var(--spacing-4xl);
 }
 
-.bouton-nourri-levain {
-  display: flex !important;
-  left: 46px !important;
-  position: absolute !important;
-  top: 707px !important;
-  width: 298px !important;
-  z-index: 1;
-}
-
-/* Conteneur cercle pour la mascotte */
-.levain-tat-de-base {
-  border-radius: 50%;
-  height: 227px;
-  left: 80px;
-  position: absolute;
-  top: 247px;
-  width: 227px;
-  overflow: hidden;
-  z-index: 1; /* au-dessus du décor de droite */
-}
-
-/* L’image remplit le cercle et est recadrée */
-.levain-tat-de-base .vector-3 {
-  position: absolute;
-  inset: 0;
+.home-page__dough-image {
   width: 100%;
   height: 100%;
   object-fit: cover;
   object-position: center;
   display: block;
+  border-radius: 50%;
+}
+
+.home-page__status {
+  font-family: var(--font-display);
+  font-size: var(--font-size-3xl);
+  font-weight: 400;
+  color: var(--color-text-primary);
+  letter-spacing: -0.73px;
+  margin: 0;
+  text-align: center;
+}
+
+.home-page__feed-button {
+  width: 100%;
+  max-width: 298px;
+  z-index: 1;
+}
+
+/* ========================================
+   RESPONSIVE - Tablet & Desktop
+   ======================================== */
+@media (min-width: 768px) {
+  .home-page {
+    gap: var(--spacing-2xl);
+    padding-top: var(--spacing-2xl);
+    min-height: auto;
+  }
+
+  .home-page__dough-section {
+    margin-top: var(--spacing-3xl);
+  }
+
+  .home-page__status {
+    font-size: calc(var(--font-size-3xl) * 1.1);
+  }
+
+  .home-page__feed-button {
+    max-width: 360px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .home-page {
+    gap: var(--spacing-3xl);
+    padding-top: var(--spacing-3xl);
+  }
+
+  .home-page__dough-section {
+    margin-top: var(--spacing-4xl);
+  }
+
+  .home-page__feed-button {
+    max-width: 400px;
+  }
 }
 </style>

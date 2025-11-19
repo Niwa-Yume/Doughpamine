@@ -1,240 +1,190 @@
 <template>
   <ion-page>
     <ion-content :scroll-y="true">
-      <div class="connexion">
-        <div class="titre-page-connexion">DoughPamine</div>
-        <p>
+      <div class="auth-page app-container">
+        <h1 class="page-title">DoughPamine</h1>
+
+        <p class="auth-page__description">
           Avec Doughpamine, nourrir ton levain devient une routine fun, ludique et motivante.
         </p>
+
         <img
-            class="mascote-accueil"
-            alt="Mascote accueil"
-            :src="video"
+          class="auth-page__mascot"
+          alt="Mascotte de levain"
+          :src="mascotGif"
         />
-        <div class="div" role="button" tabindex="0" @click="onGoogleClick" @keydown.enter="onGoogleClick">
-          <GoogleLogo class="logo-instance" />
-          <div class="sign-in-with-google">Continuer avec Google</div>
-        </div>
+
+        <button
+          class="auth-page__google-button"
+          @click="handleGoogleSignIn"
+          @keydown.enter="handleGoogleSignIn"
+        >
+          <GoogleLogo class="auth-page__google-logo" />
+          <span class="auth-page__google-text">Continuer avec Google</span>
+        </button>
       </div>
     </ion-content>
   </ion-page>
 </template>
 
-<script lang="ts">
-import { defineComponent } from "vue";
+<script setup lang="ts">
 import { IonPage, IonContent } from '@ionic/vue';
 import { useAuth } from "@/composables/useAuth";
 import { useRoute } from "vue-router";
 import GoogleLogo from "@/components/GoogleLogo.vue";
-import video from "../../public/assets/gif/levain crop.gif";
 
-export default defineComponent({
-  name: "Connexion-inscription",
-  components: { IonPage, IonContent, GoogleLogo },
-  setup() {
-    const { signInWithGoogle } = useAuth();
-    const route = useRoute();
-    const onGoogleClick = () => {
-      const redirect = (route.query.redirect as string) || '/profile';
-      const callback = `/auth?redirect=${encodeURIComponent(redirect)}`;
-      signInWithGoogle(callback);
-    };
-    return { video, onGoogleClick };
-  }
-});
+// Assets
+const mascotGif = "/assets/gif/levain crop.gif";
+
+const { signInWithGoogle } = useAuth();
+const route = useRoute();
+
+/**
+ * Gère l'authentification Google
+ * Redirige vers la page demandée après connexion (ou /profile par défaut)
+ */
+function handleGoogleSignIn(): void {
+  const redirectPath = (route.query.redirect as string) || '/profile';
+  const callbackUrl = `/auth?redirect=${encodeURIComponent(redirectPath)}`;
+  signInWithGoogle(callbackUrl);
+}
 </script>
 
-<style>
-.connexion {
-  background-color: #f2e5ca;
-  border-radius: 15.99px;
+<style scoped>
+.auth-page {
   display: flex;
   flex-direction: column;
   align-items: center;
-  min-height: 100vh;
-  overflow: hidden;
-  width: 100%;
-  max-width: 390px;
-  margin: 0 auto;
-  padding: 0 24px;
+  justify-content: flex-start;
+  padding-bottom: var(--spacing-xl);
 }
 
-.connexion .titre-page-connexion {
-  align-items: center;
-  color: var(--dark-pure-black);
-  display: flex;
-  font-family: var(--h1-font-family),serif;
-  font-size: var(--h1-font-size);
-  font-style: var(--h1-font-style);
-  font-weight: var(--h1-font-weight);
-  height: auto;
-  justify-content: center;
-  letter-spacing: var(--h1-letter-spacing);
-  line-height: var(--h1-line-height);
-  margin: 20px 0 0 0;
-  text-align: center;
-  width: 100%;
-  max-width: 294px;
-}
-
-.connexion p {
-  color: #000000;
-  font-family: 'ADLaM Display', serif;
-  font-size: 16px;
+.auth-page__description {
+  color: var(--color-text-primary);
+  font-family: var(--font-display);
+  font-size: var(--font-size-base);
   font-weight: 400;
   line-height: 1.5;
   text-align: center;
-  margin: 16px 0 0 0;
+  margin: var(--spacing-md) 0 0;
   max-width: 294px;
-  padding: 0 12px;
+  padding: 0 var(--spacing-md);
 }
 
-.connexion .mascote-accueil {
+.auth-page__mascot {
   height: 372px;
-  margin-top: 27px;
   width: auto;
   max-width: 100%;
   object-fit: contain;
+  margin-top: var(--spacing-xl);
 }
 
-.connexion .div {
-  align-items: center;
-  background-color: #ffffff;
-  border-radius: 2.6px;
-  box-shadow: 0px 1.3px 1.3px #0000002b, 0px 0px 1.3px #00000015;
+.auth-page__google-button {
   display: flex;
-  gap: 12.99px;
-  height: 71px;
+  align-items: center;
   justify-content: center;
-  margin: 39px 0 0 0;
-  padding: 1.3px 12.99px 1.3px 1.3px;
-  position: relative;
+  gap: var(--spacing-md);
+  background-color: var(--color-surface);
+  border-radius: var(--border-radius-sm);
+  box-shadow: var(--shadow-button);
+  height: var(--button-height-md);
   width: 100%;
   max-width: 294px;
+  margin-top: var(--spacing-2xl);
+  padding: var(--spacing-xs) var(--spacing-md);
   cursor: pointer;
-  transition: transform 0.1s ease;
+  border: none;
+  transition: transform var(--transition-fast), box-shadow var(--transition-fast);
 }
 
-.connexion .div:hover {
-  box-shadow: 0px 2px 2px #0000003b, 0px 0px 2px #00000025;
+.auth-page__google-button:hover {
+  box-shadow: 0px 2px 2px rgba(0, 0, 0, 0.23), 0px 0px 2px rgba(0, 0, 0, 0.15);
 }
 
-.connexion .div:active {
+.auth-page__google-button:active {
   transform: scale(0.99);
 }
 
-.connexion .logo-instance {
-  width: 49.35px;
-  height: 49.35px;
+.auth-page__google-logo {
+  width: 49px;
+  height: 49px;
   flex-shrink: 0;
 }
 
-.connexion .sign-in-with-google {
-  color: #757575;
-  font-size: 18.2px;
+.auth-page__google-text {
+  color: var(--color-text-light);
+  font-size: var(--font-size-lg);
   font-weight: 500;
-  letter-spacing: 0;
-  line-height: normal;
-  position: relative;
   white-space: nowrap;
-  width: fit-content;
 }
 
-/* ----------------------------- */
-/*      Responsive overrides     */
-/* ----------------------------- */
-/* Tablet */
+/* ========================================
+   RESPONSIVE - Tablet & Desktop
+   ======================================== */
 @media (min-width: 768px) {
-  .connexion {
-    max-width: 600px;
-    border-radius: 20px;
-    padding: 0 40px;
+  .auth-page {
+    padding-top: var(--spacing-2xl);
   }
 
-  .connexion .titre-page-connexion {
-    font-size: calc(var(--h1-font-size) * 1.3);
-    margin-top: 10px;
+  .auth-page__description {
+    font-size: var(--font-size-lg);
     max-width: 400px;
+    margin-top: var(--spacing-lg);
   }
 
-  .connexion p {
-    font-size: 18px;
-    max-width: 400px;
-    margin-top: 20px;
-  }
-
-  .connexion .mascote-accueil {
+  .auth-page__mascot {
     height: 450px;
-    margin-top: 40px;
+    margin-top: var(--spacing-2xl);
   }
 
-  .connexion .div {
+  .auth-page__google-button {
     max-width: 400px;
     height: 80px;
-    margin-top: 50px;
-    border-radius: 4px;
+    margin-top: var(--spacing-3xl);
   }
 
-  .connexion .logo-instance {
+  .auth-page__google-logo {
     width: 56px;
     height: 56px;
   }
 
-  .connexion .sign-in-with-google {
-    font-size: 20px;
+  .auth-page__google-text {
+    font-size: var(--font-size-xl);
   }
 }
 
-/* Desktop */
 @media (min-width: 1024px) {
-  .connexion {
-    max-width: 700px;
-    border-radius: 24px;
-    padding: 40px 60px;
+  .auth-page {
+    padding-top: var(--spacing-3xl);
     justify-content: center;
   }
 
-  .connexion .titre-page-connexion {
-    font-size: calc(var(--h1-font-size) * 1.4);
-    margin-top: 40px;
+  .auth-page__description {
     max-width: 450px;
   }
 
-  .connexion p {
-    font-size: 18px;
-    max-width: 450px;
-    margin-top: 24px;
-  }
-
-  .connexion .mascote-accueil {
+  .auth-page__mascot {
     height: 380px;
-    margin-top: 30px;
+    margin-top: var(--spacing-xl);
   }
 
-  .connexion .div {
+  .auth-page__google-button {
     max-width: 450px;
     height: 85px;
-    margin-top: 40px;
-    border-radius: 6px;
-    gap: 16px;
   }
 
-  .connexion .div:hover {
+  .auth-page__google-button:hover {
     transform: translateY(-2px);
-    box-shadow: 0px 4px 8px #0000003b, 0px 0px 4px #00000025;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.23), 0px 0px 4px rgba(0, 0, 0, 0.15);
   }
 
-  .connexion .div:active {
+  .auth-page__google-button:active {
     transform: translateY(0) scale(0.99);
   }
 
-  .connexion .logo-instance {
+  .auth-page__google-logo {
     width: 60px;
     height: 60px;
-  }
-
-  .connexion .sign-in-with-google {
-    font-size: 20px;
   }
 }
 </style>
