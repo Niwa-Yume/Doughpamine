@@ -1,5 +1,5 @@
 <template>
-  <div class="icon-list">
+  <div class="icon-list" role="navigation" aria-label="Raccourcis">
     <img src="/assets/icon/flamme.png" alt="Flamme" />
     <img src="/assets/icon/icon de profile.png" alt="Profile" />
   </div>
@@ -7,12 +7,12 @@
 
 <style scoped>
 .icon-list {
-  position: fixed;
-  /* Aligné sur le haut du widget Jotform */
-  top: calc(env(safe-area-inset-top, 0px) + 31px);
-  /* Positionné plus à droite pour éviter la superposition */
-  left: calc(env(safe-area-inset-left, 0px) + 230px);
-  
+  position: absolute;
+  /* Aligné sur la même ligne que l'avatar Jotform */
+  top: calc(env(safe-area-inset-top, 0px) + 28px);
+  /* Positionné à droite dans le conteneur parent */
+  right: 12px;
+
   display: flex;
   flex-direction: row;
   align-items: center;

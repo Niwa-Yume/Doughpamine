@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="jotform-header-container">
     <IconListComponent />
     <div ref="anchor" class="jotform-agent-anchor" aria-hidden="true" />
   </div>
@@ -19,6 +19,7 @@ export default defineComponent({
     topOffsetPx: { type: Number, default: 28 },
     leftOffsetPx: { type: Number, default: 12 },
     scale: { type: Number, default: 0.85 },
+    centered: { type: Boolean, default: false },
   },
   setup(props) {
     const anchor = ref<HTMLElement | null>(null)
@@ -26,8 +27,15 @@ export default defineComponent({
 
     const setImportant = (el: HTMLElement | null) => {
       if (!el) return
+
+      // Calcul de la position pour rester dans le conteneur centré max-width: 390px
+      const viewportWidth = window.innerWidth;
+      const containerMaxWidth = 390;
+      const containerLeft = Math.max(0, (viewportWidth - containerMaxWidth) / 2);
+
       const top = `calc(env(safe-area-inset-top, 0px) + ${props.topOffsetPx}px)`
-      const left = `calc(env(safe-area-inset-left, 0px) + ${props.leftOffsetPx}px)`
+      const left = `${containerLeft + props.leftOffsetPx}px`;
+
       el.style.setProperty('position', 'fixed', 'important')
       el.style.setProperty('top', top, 'important')
       el.style.setProperty('left', left, 'important')
@@ -35,6 +43,8 @@ export default defineComponent({
       el.style.setProperty('bottom', 'auto', 'important')
       el.style.setProperty('margin', '0', 'important')
       el.style.setProperty('z-index', '9999', 'important')
+      el.style.setProperty('transform', `scale(${props.scale})`, 'important')
+      el.style.setProperty('transform-origin', 'top left', 'important')
     }
 
     const applyStyles = () => {
@@ -46,8 +56,6 @@ export default defineComponent({
       const avatar = root.querySelector('.ai-agent-chat-avatar-container') as HTMLElement | null
       if (avatar) {
         setImportant(avatar)
-        avatar.style.setProperty('transform', `scale(${props.scale})`, 'important')
-        avatar.style.setProperty('transform-origin', 'top left', 'important')
         avatar.style.setProperty('pointer-events', 'auto', 'important')
       }
 
@@ -75,6 +83,11 @@ export default defineComponent({
       return false
     }
 
+    // Gestion du resize pour recalculer la position
+    const handleResize = () => {
+      applyStyles()
+    }
+
     onMounted(() => {
       const already = ensureOnce()
 
@@ -83,11 +96,14 @@ export default defineComponent({
       })
       domObserver.observe(document.body, { childList: true, subtree: true, attributes: true })
 
+      window.addEventListener('resize', handleResize)
+
       if (already) applyStyles()
     })
 
     onBeforeUnmount(() => {
       if (domObserver) { domObserver.disconnect(); domObserver = null }
+      window.removeEventListener('resize', handleResize)
     })
 
     return { anchor }
@@ -96,8 +112,19 @@ export default defineComponent({
 </script>
 
 <style scoped>
-.jotform-agent-anchor {
+.jotform-header-container {
   position: fixed;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100%;
+  max-width: 390px;
+  z-index: 9999;
+  pointer-events: none;
+}
+
+.jotform-agent-anchor {
+  position: absolute;
   top: 0;
   left: 0;
   width: 0;

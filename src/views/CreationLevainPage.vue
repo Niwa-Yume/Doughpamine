@@ -2,12 +2,17 @@
   <ion-page>
     <ion-content :scroll-y="false">
       <main class="sourdough-creation-container">
+        <a href="#" class="back-link" @click.prevent="goBack">
+          <img src="/assets/SVG/back-arrow.svg" alt="Retour en arrière">
+        </a>
         <h1 class="title">Création du levain</h1>
         <div class="video-placeholder">
-          <img
-            src="/assets/mascott/Version_de_base-removebg-preview.png"
-            alt="Tutoriel vidéo sur la création de levain"
-          >
+          <video
+            src="/assets/video/video%20tuto%20levain.mp4"
+            autoplay
+            loop
+            playsinline
+          ></video>
         </div>
         <form class="creation-form" @submit.prevent="handleSubmit">
           <input
@@ -21,9 +26,7 @@
             {{ isSubmitting ? 'Création...' : 'Valider' }}
           </button>
         </form>
-        <a href="#" class="back-link" @click.prevent="goBack">
-          <img src="/assets/SVG/back-arrow.svg" alt="Retour en arrière">
-        </a>
+
         <p v-if="errorMessage" class="error-message">{{ errorMessage }}</p>
         <p v-if="successMessage" class="success-message">{{ successMessage }}</p>
       </main>
@@ -131,7 +134,8 @@ async function handleSubmit() {
   margin-bottom: 15px;
 }
 
-.video-placeholder img {
+.video-placeholder img,
+.video-placeholder video {
   width: 100%;
   height: 100%;
   object-fit: contain;
@@ -206,6 +210,7 @@ async function handleSubmit() {
   display: flex;
   justify-content: center;
   align-items: center;
+  align-self: flex-start;
 }
 
 .back-link img {

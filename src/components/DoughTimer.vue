@@ -9,6 +9,10 @@
   Props:
   - lastFeedTime: Date du dernier nourrissage (timestamp ou Date)
   - size: Taille du cercle en pixels (défaut: 227)
+  - strokeWidth: épaisseur du cercle
+  - showTimeLabel: afficher le label du temps restant
+  - acceleratedMode: mode accéléré (1s réelle = 1h de levain)
+  - contentSize: taille (px) de la zone de contenu centrale
 
   Événements:
   - timeExpired: Émis quand le timer atteint 0
@@ -17,7 +21,10 @@
   <DoughTimer :lastFeedTime="feedDate" :size="227" @timeExpired="handleExpired" />
 -->
 <template>
-  <div class="dough-timer" :style="{ width: `${size}px`, height: `${size}px` }">
+  <div
+    class="dough-timer"
+    :style="{ width: `${size}px`, height: `${size}px`, '--content-size': `${contentSize}px` } as any"
+  >
     <!-- Cercle SVG de progression -->
     <svg
       class="dough-timer__svg"
@@ -74,12 +81,16 @@ interface Props {
   size?: number;
   strokeWidth?: number;
   showTimeLabel?: boolean;
+  acceleratedMode?: boolean;
+  contentSize?: number;
 }
 
 const props = withDefaults(defineProps<Props>(), {
   size: 227,
   strokeWidth: 8,
   showTimeLabel: false,
+  acceleratedMode: false,
+  contentSize: 200,
 });
 
 const emit = defineEmits<{
@@ -276,4 +287,3 @@ onUnmounted(() => {
   animation: pulse 2s ease-in-out infinite;
 }
 </style>
-

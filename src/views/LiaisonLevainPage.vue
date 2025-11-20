@@ -2,6 +2,9 @@
   <ion-page>
     <ion-content :scroll-y="false">
       <section class="liaison-container">
+        <a href="#" class="back-arrow" @click.prevent="goBack">
+          <img src="/assets/SVG/back-arrow.svg" alt="Flèche retour en arrière">
+        </a>
         <img
           src="/assets/mascott/Version_de_base-removebg-preview.png"
           alt="Mascotte levain"
@@ -17,16 +20,17 @@
             required
           >
           <input
-            type="text"
+            type="number"
             class="form-input"
-            placeholder="âge du levain ...."
-            v-model="ageLevain"
+            placeholder="Âge du levain (en années)"
+            v-model.number="ageLevain"
+            min="0"
+            step="1"
             required
           >
           <input
-            type="text"
+            type="datetime-local"
             class="form-input form-input-date"
-            placeholder="Dernier moment ou il a été nourri"
             v-model="dernierNourri"
             required
           >
@@ -34,9 +38,6 @@
             {{ isSubmitting ? 'Liaison en cours...' : 'Valider liaison' }}
           </button>
         </form>
-        <a href="#" class="back-arrow" @click.prevent="goBack">
-          <img src="/assets/SVG/back-arrow.svg" alt="Flèche retour en arrière">
-        </a>
         <p v-if="errorMessage" class="error-message">{{ errorMessage }}</p>
         <p v-if="successMessage" class="success-message">{{ successMessage }}</p>
       </section>
@@ -55,7 +56,7 @@ const router = useRouter();
 const { user } = useAuth();
 
 const nomLevain = ref('');
-const ageLevain = ref('');
+const ageLevain = ref<number | null>(null);
 const dernierNourri = ref('');
 const isSubmitting = ref(false);
 const errorMessage = ref('');
@@ -71,21 +72,46 @@ async function handleSubmit() {
     return;
   }
 
+  if (!ageLevain.value || ageLevain.value <= 0) {
+    errorMessage.value = 'L\'âge du levain doit être supérieur à 0';
+    return;
+  }
+
   isSubmitting.value = true;
   errorMessage.value = '';
   successMessage.value = '';
 
   try {
+    // Convertir la date locale en ISO string
+    const lastFedDate = new Date(dernierNourri.value).toISOString();
+
+    // Calculer le temps écoulé depuis le dernier nourrissage en heures
+    const now = new Date();
+    const fedDate = new Date(dernierNourri.value);
+    const hoursElapsed = Math.floor((now.getTime() - fedDate.getTime()) / (1000 * 60 * 60));
+
+    // Déterminer le statut initial basé sur le temps écoulé
+    let initialStatus = 'active';
+    if (hoursElapsed >= 48) {
+      initialStatus = 'starving'; // Plus de 48h
+    } else if (hoursElapsed >= 24) {
+      initialStatus = 'hungry'; // Entre 24h et 48h
+    } else if (hoursElapsed >= 12) {
+      initialStatus = 'active'; // Entre 12h et 24h
+    } else {
+      initialStatus = 'fed'; // Moins de 12h
+    }
+
     // Créer le levain dans la base de données
-    const { data, error } = await supabase
+    const { error } = await supabase
       .from('doughs')
       .insert([
         {
           user_id: user.value.id,
           name: nomLevain.value,
-          age: ageLevain.value,
-          last_fed: dernierNourri.value,
-          status: 'active',
+          age_days: ageLevain.value,
+          last_fed: lastFedDate,
+          status: initialStatus,
           created_at: new Date().toISOString()
         }
       ])
@@ -97,7 +123,7 @@ async function handleSubmit() {
 
     // Réinitialiser le formulaire
     nomLevain.value = '';
-    ageLevain.value = '';
+    ageLevain.value = null;
     dernierNourri.value = '';
 
     // Rediriger vers la page d'accueil après 1.5 secondes
@@ -220,6 +246,7 @@ async function handleSubmit() {
 .back-arrow {
   display: block;
   margin-top: 20px;
+  align-self: flex-start;
 }
 
 .back-arrow img {
