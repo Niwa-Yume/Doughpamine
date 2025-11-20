@@ -35,13 +35,14 @@
 </template>
 
 <script setup lang="ts">
-import { IonPage, IonContent } from '@ionic/vue';
+import { IonPage, IonContent, useIonRouter } from '@ionic/vue';
 import { useRouter } from 'vue-router';
 import { ref } from 'vue';
 import { supabase } from '@/lib/supabaseClient';
 import { useAuth } from '@/composables/useAuth';
 
 const router = useRouter();
+const ionRouter = useIonRouter();
 const { user } = useAuth();
 
 const nomLevain = ref('');
@@ -50,7 +51,11 @@ const errorMessage = ref('');
 const successMessage = ref('');
 
 function goBack() {
-  router.back();
+  if (ionRouter.canGoBack()) {
+    ionRouter.back();
+    return;
+  }
+  router.push('/create-dough');
 }
 
 async function handleSubmit() {
@@ -64,15 +69,16 @@ async function handleSubmit() {
   successMessage.value = '';
 
   try {
-    // Créer le levain dans la base de données
     const { error } = await supabase
-      .from('doughs')
+      .from('levains')
       .insert([
         {
           user_id: user.value.id,
           name: nomLevain.value,
-          status: 'new',
-          created_at: new Date().toISOString()
+          current_state_name: 'Actif',
+          last_fed_at: new Date().toISOString(),
+          streak: 0,
+          created_at: new Date().toISOString(),
         }
       ])
       .select();
@@ -80,14 +86,10 @@ async function handleSubmit() {
     if (error) throw error;
 
     successMessage.value = 'Levain créé avec succès !';
-
-    // Réinitialiser le formulaire
     nomLevain.value = '';
 
-    // Rediriger vers la page d'accueil après 1.5 secondes
-    setTimeout(() => {
-      router.push('/home');
-    }, 1500);
+    // Navigation Ionic qui vide la pile complètement
+    await ionRouter.navigate('/home', 'root', 'replace');
 
   } catch (e: any) {
     errorMessage.value = e.message || 'Erreur lors de la création du levain';
@@ -234,4 +236,3 @@ async function handleSubmit() {
   font-family: var(--font-display, 'ADLaM Display', sans-serif);
 }
 </style>
-

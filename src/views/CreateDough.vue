@@ -1,34 +1,39 @@
 <template>
-  <div class="create-dough-page app-container">
-    <h1 class="page-title">Création du levain</h1>
+  <ion-page>
+    <ion-content class="ion-padding">
+      <div class="create-dough-page app-container">
+        <h1 class="page-title">Création du levain</h1>
 
-    <img
-      class="create-dough-page__mascot"
-      alt="Mascotte de levain"
-      :src="mascotIllustration"
-    />
+        <img
+          class="create-dough-page__mascot"
+          alt="Mascotte de levain"
+          :src="mascotIllustration"
+        />
 
-    <div class="create-dough-page__actions">
-      <NewButton
-        text="CRÉER UN LEVAIN"
-        variant="primary"
-        class="create-dough-page__button"
-        @click="navigateToCreation"
-      />
+        <div class="create-dough-page__actions">
+          <NewButton
+            text="CRÉER UN LEVAIN"
+            variant="primary"
+            class="create-dough-page__button"
+            @click="navigateToCreation"
+          />
 
-      <NewButton
-        text="LIER UN LEVAIN EXISTANT"
-        variant="secondary"
-        class="create-dough-page__button"
-        @click="navigateToLiaison"
-      />
-    </div>
-  </div>
+          <NewButton
+            text="LIER UN LEVAIN EXISTANT"
+            variant="secondary"
+            class="create-dough-page__button"
+            @click="navigateToLiaison"
+          />
+        </div>
+      </div>
+    </ion-content>
+  </ion-page>
 </template>
 
 <script setup lang="ts">
 import { ref } from "vue";
 import { useRouter } from "vue-router";
+import { IonPage, IonContent } from '@ionic/vue';
 import NewButton from "@/components/NewButton.vue";
 
 const router = useRouter();

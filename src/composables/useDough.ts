@@ -2,139 +2,131 @@ import { ref, computed, watchEffect } from 'vue'
 import { supabase } from '@/lib/supabaseClient'
 import { useAuth } from '@/composables/useAuth'
 
-type DoughStatus = 'new' | 'fed' | 'active' | 'hungry' | 'starving' | 'frozen' | 'dead'
+export interface LevainState {
+  name: string
+  description?: string | null
+}
 
-export interface Dough {
+export interface Levain {
   id: string
   user_id: string
   name: string
-  status: DoughStatus
-  age_days?: number | null
-  last_fed: string | null
+  current_state_name: string
+  last_fed_at: string | null
+  streak: number
+  skin: string
   created_at: string
 }
 
-const dough = ref<Dough | null>(null)
-const loading = ref(false)
+const levain = ref<Levain | null>(null)
+const states = ref<LevainState[]>([])
+const loadingLevain = ref(false)
+const loadingStates = ref(false)
 const error = ref<string | null>(null)
+const statesError = ref<string | null>(null)
+
+const DEFAULT_FED_STATE = 'Actif/pret'
 
 function nowISO() { return new Date().toISOString() }
 
 export function useDough() {
   const { user, isAuthenticated } = useAuth()
 
-  async function fetchDough() {
+  async function fetchLevain() {
     if (!isAuthenticated.value || !user.value?.id) {
-      dough.value = null
+      levain.value = null
       return
     }
-    loading.value = true
+
+    loadingLevain.value = true
     error.value = null
+
     try {
       const { data, error: err } = await supabase
-        .from('doughs')
+        .from('levains')
         .select('*')
         .eq('user_id', user.value.id)
         .order('created_at', { ascending: false })
         .limit(1)
         .maybeSingle()
 
-      if (!err && data) {
-        dough.value = data as Dough
-        // Mettre à jour le statut basé sur le temps écoulé
-        updateStatus()
-      } else {
-        dough.value = null
-      }
+      if (err) throw err
+      levain.value = data ?? null
     } catch (e: any) {
-      error.value = e?.message ?? 'Unknown error'
-      dough.value = null
+      error.value = e?.message ?? 'Impossible de récupérer le levain'
+      levain.value = null
     } finally {
-      loading.value = false
+      loadingLevain.value = false
     }
   }
 
-  function updateStatus() {
-    if (!dough.value || !dough.value.last_fed) return
-
-    const now = new Date()
-    const lastFed = new Date(dough.value.last_fed)
-    const hoursElapsed = Math.floor((now.getTime() - lastFed.getTime()) / (1000 * 60 * 60))
-
-    let newStatus: DoughStatus = dough.value.status
-
-    if (dough.value.status === 'frozen') {
-      // Ne pas changer le statut si le levain est congelé
-      return
-    }
-
-    if (hoursElapsed >= 72) {
-      newStatus = 'dead' // Plus de 72h
-    } else if (hoursElapsed >= 48) {
-      newStatus = 'starving' // Entre 48h et 72h
-    } else if (hoursElapsed >= 24) {
-      newStatus = 'hungry' // Entre 24h et 48h
-    } else if (hoursElapsed >= 12) {
-      newStatus = 'active' // Entre 12h et 24h
-    } else {
-      newStatus = 'fed' // Moins de 12h
-    }
-
-    if (newStatus !== dough.value.status) {
-      dough.value.status = newStatus
-      persist()
-    }
-  }
-
-  async function persist() {
-    if (!dough.value) return
+  async function fetchLevainStates() {
+    loadingStates.value = true
+    statesError.value = null
 
     try {
-      const { error: err } = await supabase
-        .from('doughs')
-        .update({
-          status: dough.value.status,
-          last_fed: dough.value.last_fed,
-          age_days: dough.value.age_days
-        })
-        .eq('id', dough.value.id)
+      const { data, error: err } = await supabase
+        .from('levain_states')
+        .select('name, description')
+        .order('name', { ascending: true })
 
       if (err) throw err
-    } catch (e) {
-      console.error('Erreur lors de la persistance:', e)
+      states.value = data ?? []
+    } catch (e: any) {
+      statesError.value = e?.message ?? 'Impossible de récupérer les états'
+      states.value = []
+    } finally {
+      loadingStates.value = false
     }
   }
 
-  async function feed() {
-    if (!dough.value) return
+  async function feedLevain() {
+    if (!levain.value) return
 
-    dough.value.status = 'fed'
-    dough.value.last_fed = nowISO()
+    const nextLastFed = nowISO()
+    const nextState = states.value.find((s) => s.name === DEFAULT_FED_STATE)
+      ? DEFAULT_FED_STATE
+      : levain.value.current_state_name
+    const nextStreak = (levain.value.streak ?? 0) + 1
 
-    // Incrémenter l'âge si le levain a plus d'un jour
-    if (dough.value.age_days !== null && dough.value.age_days !== undefined) {
-      dough.value.age_days += 1
+    const { error: err } = await supabase
+      .from('levains')
+      .update({
+        last_fed_at: nextLastFed,
+        current_state_name: nextState,
+        streak: nextStreak,
+      })
+      .eq('id', levain.value.id)
+
+    if (err) throw err
+
+    levain.value = {
+      ...levain.value,
+      last_fed_at: nextLastFed,
+      current_state_name: nextState,
+      streak: nextStreak,
     }
-
-    await persist()
   }
 
-  async function freeze() {
-    if (!dough.value) return
-    dough.value.status = 'frozen'
-    await persist()
-  }
+  async function updateLevainState(stateName: string) {
+    if (!levain.value) return
 
-  async function unfreeze() {
-    if (!dough.value) return
-    dough.value.status = 'active'
-    dough.value.last_fed = nowISO()
-    await persist()
+    const { error: err } = await supabase
+      .from('levains')
+      .update({ current_state_name: stateName })
+      .eq('id', levain.value.id)
+
+    if (err) throw err
+
+    levain.value = {
+      ...levain.value,
+      current_state_name: stateName,
+    }
   }
 
   const lastFedHuman = computed(() => {
-    if (!dough.value?.last_fed) return 'Jamais'
-    const diffMs = Date.now() - new Date(dough.value.last_fed).getTime()
+    if (!levain.value?.last_fed_at) return 'Jamais'
+    const diffMs = Date.now() - new Date(levain.value.last_fed_at).getTime()
     const hours = Math.floor(diffMs / (1000 * 60 * 60))
     if (hours < 1) return 'Il y a quelques minutes'
     if (hours === 1) return 'Il y a 1 heure'
@@ -144,41 +136,104 @@ export function useDough() {
   })
 
   const timeUntilHungry = computed(() => {
-    if (!dough.value?.last_fed) return 0
-    const lastFed = new Date(dough.value.last_fed)
-    const hungryTime = new Date(lastFed.getTime() + 24 * 60 * 60 * 1000) // 24h après
-    const remaining = hungryTime.getTime() - Date.now()
-    return Math.max(0, remaining)
+    if (!levain.value?.last_fed_at) return 0
+    const lastFed = new Date(levain.value.last_fed_at)
+    const hungryTime = new Date(lastFed.getTime() + 24 * 60 * 60 * 1000)
+    return Math.max(0, hungryTime.getTime() - Date.now())
   })
 
   const hoursElapsed = computed(() => {
-    if (!dough.value?.last_fed) return 0
-    const diffMs = Date.now() - new Date(dough.value.last_fed).getTime()
+    if (!levain.value?.last_fed_at) return 0
+    const diffMs = Date.now() - new Date(levain.value.last_fed_at).getTime()
     return Math.floor(diffMs / (1000 * 60 * 60))
   })
 
-  // Rafraîchir quand l'utilisateur change
+  /**
+   * Calcule l'état du levain basé sur le temps écoulé depuis le dernier nourrissage
+   */
+  function calculateStateFromTime(hoursElapsed: number, currentState: string): string {
+    // Si le levain est au frais ou mort, ne pas changer automatiquement
+    if (currentState === 'Au frais' || currentState === 'Mort') {
+      return currentState;
+    }
+
+    // Logique de dégradation basée sur le temps
+    if (hoursElapsed >= 72) {
+      return 'Mort'; // Plus de 72h (3 jours)
+    } else if (hoursElapsed >= 48) {
+      return 'Neglige'; // Entre 48h et 72h (2-3 jours)
+    } else if (hoursElapsed >= 24) {
+      return 'Affame'; // Entre 24h et 48h (1-2 jours)
+    } else if (hoursElapsed >= 12) {
+      return 'Actif'; // Entre 12h et 24h
+    } else {
+      return 'Actif/pret'; // Moins de 12h
+    }
+  }
+
+  /**
+   * Met à jour automatiquement l'état du levain basé sur le temps écoulé
+   */
+  async function updateStateBasedOnTime() {
+    if (!levain.value?.last_fed_at) return;
+
+    const hours = hoursElapsed.value;
+    const currentState = levain.value.current_state_name;
+    const calculatedState = calculateStateFromTime(hours, currentState);
+
+    // Si l'état calculé est différent de l'état actuel, mettre à jour
+    if (calculatedState !== currentState) {
+      await updateLevainState(calculatedState);
+    }
+  }
+
   watchEffect(() => {
-    if (isAuthenticated.value) fetchDough()
-    else { dough.value = null }
+    if (isAuthenticated.value && user.value?.id) {
+      fetchLevain()
+      fetchLevainStates()
+    } else {
+      levain.value = null
+      states.value = []
+    }
   })
 
-  // Mettre à jour le statut toutes les minutes
-  setInterval(() => {
-    if (dough.value) updateStatus()
-  }, 60000)
+  // Vérifier et mettre à jour l'état toutes les 5 minutes
+  let stateCheckInterval: NodeJS.Timeout | null = null;
+
+  watchEffect((onCleanup) => {
+    if (levain.value) {
+      // Vérifier immédiatement
+      updateStateBasedOnTime();
+
+      // Puis toutes les 5 minutes
+      stateCheckInterval = setInterval(() => {
+        updateStateBasedOnTime();
+      }, 5 * 60 * 1000); // 5 minutes
+    }
+
+    onCleanup(() => {
+      if (stateCheckInterval) {
+        clearInterval(stateCheckInterval);
+        stateCheckInterval = null;
+      }
+    });
+  });
 
   return {
-    dough,
-    loading,
+    levain,
+    states,
+    loadingLevain,
+    loadingStates,
     error,
-    fetchDough,
-    feed,
-    freeze,
-    unfreeze,
+    statesError,
+    fetchLevain,
+    fetchLevainStates,
+    feedLevain,
+    updateLevainState,
+    updateStateBasedOnTime,
+    calculateStateFromTime,
     lastFedHuman,
     timeUntilHungry,
     hoursElapsed,
   }
 }
-
