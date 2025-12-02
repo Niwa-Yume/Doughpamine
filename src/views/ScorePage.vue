@@ -1,6 +1,6 @@
 <template>
   <ion-page>
-    <ion-content class="ion-padding">
+    <ion-content class="ion-padding" :scrollY="false">
       <main class="score-page">
         <header class="score-header">
           <div class="header-top">
@@ -8,7 +8,7 @@
               <img src="/assets/SVG/back-arrow.svg" alt="Retour" />
             </a>
           </div>
-          <h1 class="page-title">Score du compte</h1>
+          <h1 class="page-title">Compte</h1>
         </header>
 
         <div class="profile-summary">
@@ -163,8 +163,8 @@ async function deleteAccount() {
   --font-body: 'Roboto', Arial, sans-serif;
 
   max-width: 390px;
-  min-height: 844px;
-  margin: 20px auto;
+  height: 100vh;
+  margin: 0 auto;
   background-color: var(--bg-color);
   border-radius: 15px;
   padding: 0 28px;
@@ -180,8 +180,8 @@ async function deleteAccount() {
   display: flex;
   flex-direction: column;
   align-items: center;
-  margin-top: 20px;
-  margin-bottom: 16px;
+  margin-top: 10px;
+  margin-bottom: 8px;
 }
 
 .header-top {
@@ -212,17 +212,17 @@ async function deleteAccount() {
 .profile-summary { display: flex; flex-direction: column; align-items: center; width: 100%; }
 
 .mascot-illustration {
-  width: 150px;
-  height: 150px;
+  width: 100px;
+  height: 100px;
   border-radius: 50%;
   object-fit: cover;
 }
 
 .level-info {
-  margin-top: 12px;
+  margin-top: 8px;
   font-family: var(--font-display), sans-serif;
-  font-size: 22px;
-  line-height: 28px;
+  font-size: 20px;
+  line-height: 24px;
   color: var(--text-color);
 }
 
@@ -233,7 +233,7 @@ async function deleteAccount() {
   display: flex;
   flex-direction: column;
   align-items: center;
-  margin-top: 18px;
+  margin-top: 12px;
 }
 
 .progress-bar-container {
@@ -262,31 +262,31 @@ async function deleteAccount() {
 }
 
 .xp-text {
-  margin-top: 12px;
+  margin-top: 8px;
   font-family: var(--font-body), sans-serif;
   font-weight: 500;
-  font-size: 16px;
-  line-height: 20px;
+  font-size: 14px;
+  line-height: 18px;
   color: var(--text-color);
 }
 
-.badges-section { width: 100%; margin-top: 20px; padding-bottom: 10px; }
+.badges-section { width: 100%; margin-top: 12px; padding-bottom: 8px; }
 
 .badges-title {
   font-family: var(--font-display), sans-serif;
-  font-size: 22px;
-  line-height: 28px;
+  font-size: 20px;
+  line-height: 24px;
   color: var(--text-color);
   text-decoration: underline;
   text-align: left;
-  margin: 0 0 12px 0;
+  margin: 0 0 8px 0;
 }
 
-.badges-grid { display: flex; flex-wrap: wrap; justify-content: space-between; row-gap: 15px; }
+.badges-grid { display: flex; flex-wrap: wrap; justify-content: space-between; row-gap: 10px; }
 
 .badge-item { display: flex; flex-direction: column; align-items: center; width: 30%; }
 
-.badge-icon-wrapper { width: 80px; height: 80px; display: flex; justify-content: center; align-items: center; position: relative; }
+.badge-icon-wrapper { width: 60px; height: 60px; display: flex; justify-content: center; align-items: center; position: relative; }
 
 .badge-icon { max-width: 100%; max-height: 100%; object-fit: contain; color: var(--couleurs-icones); }
 
@@ -304,20 +304,20 @@ async function deleteAccount() {
 .main-actions {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 10px;
   width: 100%;
   max-width: 295px;
-  margin: 24px auto 20px auto;
+  margin: 12px auto 10px auto;
   align-items: center;
 }
 
 .btn {
-  padding: 15px;
+  padding: 12px;
   border-radius: 4000px;
   color: var(--pure-white, #FEFAE0);
   font-family: var(--font-display), sans-serif;
   font-weight: 400;
-  font-size: 18px;
+  font-size: 16px;
   width: 100%;
   border: 2px solid var(--color-border, #4B4B4B);
   box-shadow: 2px 4px 0 0 var(--color-border, #4B4B4B);
@@ -346,11 +346,11 @@ async function deleteAccount() {
 .delete-account-btn {
   background-color: var(--color-error, #C1121F);
   border-radius: 10px;
-  padding: 15px;
+  padding: 12px;
   color: var(--pure-white, #FEFAE0);
   font-family: var(--font-display), sans-serif;
   font-weight: 400;
-  font-size: 15px;
+  font-size: 14px;
   width: 100%;
   max-width: 291px;
   border: none;
