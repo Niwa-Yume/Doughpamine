@@ -1,6 +1,6 @@
 <template>
   <ion-page>
-    <ion-content>
+    <ion-content :scrollY="false">
       <!-- Widget AI Jotform via composant dédié - Uniquement visible sur /home -->
       <JotformAgent v-if="isHomePage"  />
 

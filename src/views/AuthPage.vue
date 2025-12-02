@@ -1,6 +1,6 @@
 <template>
   <ion-page>
-    <ion-content :scroll-y="true">
+    <ion-content :scrollY="false">
       <div class="auth-page app-container">
         <h1 class="page-title">DoughPamine</h1>
 
