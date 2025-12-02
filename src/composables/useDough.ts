@@ -98,8 +98,6 @@ export function useDough() {
             lastFed.getDate() !== today.getDate()
         );
 
-        console.log(`🔥 Avant nourrir: streak=${levain.value.streak}, lastFed=${lastFed}, isFirstToday=${isFirstFeedToday}`);
-
         const nextStreak = isFirstFeedToday
             ? (levain.value.streak ?? 0) + 1
             : levain.value.streak;
@@ -118,7 +116,6 @@ export function useDough() {
             nextState = DEFAULT_FED_STATE;
         }
 
-        console.log(`🍞 Nourrissage: ${levain.value.current_state_name} → ${nextState}, streak: ${levain.value.streak} → ${nextStreak}`);
 
         const { error: err } = await supabase
             .from('levains')
@@ -187,7 +184,6 @@ export function useDough() {
       current_state_name: nextState
     };
 
-    console.log('🧊 Levain mis au frais');
   }
 
   /**
@@ -212,7 +208,6 @@ export function useDough() {
       current_state_name: nextState
     };
 
-    console.log('🌡️ Levain sorti du frais');
   }
 
   const lastFedHuman = computed(() => {
@@ -230,19 +225,14 @@ export function useDough() {
         if (!levain.value?.last_fed_at) return 0
 
         const machineState = STATE_DB_TO_MACHINE[levain.value.current_state_name]
-        console.log('🔍 Current state (DB):', levain.value.current_state_name)
-        console.log('🔍 Machine state:', machineState)
 
         const stateConfig = machineState ? LEVAIN_STATE_MACHINE.states[machineState] : null
         const rienFaireAction = stateConfig?.actions.rien_faire
 
-        console.log('🔍 Rien faire action:', rienFaireAction)
-        console.log('🔍 delay_h brut:', rienFaireAction?.delay_h)
 
         if (!rienFaireAction?.delay_h) return 0
 
         const delayHours = parseDelayHours(rienFaireAction.delay_h) || 24
-        console.log('🔍 delay_h parsé:', delayHours)
 
         const lastFed = new Date(levain.value.last_fed_at)
         const transitionTime = new Date(lastFed.getTime() + delayHours * 60 * 60 * 1000)

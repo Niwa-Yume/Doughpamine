@@ -2,7 +2,7 @@
   <ion-page>
     <ion-content>
       <!-- Widget AI Jotform via composant dédié - Uniquement visible sur /home -->
-      <JotformAgent v-if="isHomePage" @click="navigateToChat" />
+      <JotformAgent v-if="isHomePage"  />
 
       <div class="home-page app-container">
 
