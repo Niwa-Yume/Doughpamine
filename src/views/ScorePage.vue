@@ -18,31 +18,32 @@
           </p>
         </div>
 
-        <div class="progress-section">
-          <div class="progress-bar-container">
-            <div class="progress-bar-bg"></div>
-            <div class="progress-bar-value" :style="{ width: progressWidth }"></div>
-          </div>
-          <p class="xp-text">{{ currentXp }} / {{ nextLevelXp }} XP</p>
-        </div>
-
-        <section id="badges" class="badges-section">
-          <h2 class="badges-title">Badges et succès :</h2>
-          <div class="badges-grid">
-            <div class="badge-item" v-for="(badge, idx) in badges" :key="idx">
-              <div class="badge-icon-wrapper">
-                <img :src="badge.icon" :alt="badge.name + ' icon'" class="badge-icon" />
-              </div>
-              <p class="badge-name">{{ badge.name }}</p>
+        <div class="content-wrapper">
+          <div class="progress-section">
+            <div class="progress-bar-container">
+              <div class="progress-bar-bg"></div>
+              <div class="progress-bar-value" :style="{ width: progressWidth }"></div>
             </div>
+            <p class="xp-text">{{ currentXp }} / {{ nextLevelXp }} XP</p>
           </div>
-        </section>
+
+          <section id="badges" class="badges-section">
+            <h2 class="badges-title">Badges et succès :</h2>
+            <div class="badges-grid">
+              <div class="badge-item" v-for="(badge, idx) in badges" :key="idx">
+                <div class="badge-icon-wrapper">
+                  <img :src="badge.icon" :alt="badge.name + ' icon'" class="badge-icon" />
+                </div>
+                <p class="badge-name">{{ badge.name }}</p>
+              </div>
+            </div>
+          </section>
+        </div>
 
         <div class="main-actions">
           <button class="btn disconnect-btn" @click="logout" :disabled="signingOut">{{ signingOut ? 'Déconnexion...' : 'Déconnecter' }}</button>
+          <button class="btn delete-account-btn" @click="deleteAccount" :disabled="deleting">{{ deleting ? 'Suppression...' : 'supprimer le compte' }}</button>
         </div>
-
-        <button class="btn delete-account-btn" @click="deleteAccount" :disabled="deleting">{{ deleting ? 'Suppression...' : 'supprimer le compte' }}</button>
 
         <p v-if="message" class="feedback success">{{ message }}</p>
         <p v-if="errorMsg" class="feedback error">{{ errorMsg }}</p>
@@ -345,23 +346,29 @@ async function deleteAccount() {
 
 .delete-account-btn {
   background-color: var(--color-error, #C1121F);
-  border-radius: 10px;
+  border-radius: 4000px;
   padding: 12px;
   color: var(--pure-white, #FEFAE0);
   font-family: var(--font-display), sans-serif;
   font-weight: 400;
   font-size: 14px;
   width: 100%;
-  max-width: 291px;
-  border: none;
-  box-shadow: none;
+  border: 2px solid var(--color-border, #4B4B4B);
+  box-shadow: 2px 4px 0 0 var(--color-border, #4B4B4B);
   text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.2s ease;
 }
 
 .delete-account-btn:hover:not(:disabled) {
-  transform: none;
-  box-shadow: none;
+  transform: translateY(2px);
+  box-shadow: 0 2px 0 0 var(--color-border, #4B4B4B);
   opacity: 0.9;
+}
+
+.delete-account-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 
 .feedback {
@@ -379,5 +386,323 @@ async function deleteAccount() {
 
 .feedback.error {
   color: var(--color-error, #C1121F);
+}
+
+/* Media queries pour desktop - Refonte complète */
+@media (min-width: 768px) {
+  .score-page {
+    max-width: 900px;
+    height: 100vh;
+    padding: 15px 30px;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+    display: grid;
+    grid-template-columns: 280px 1fr;
+    grid-template-rows: auto 1fr auto;
+    grid-template-areas:
+      "header header"
+      "profile content"
+      "actions actions";
+    gap: 12px 25px;
+    align-items: start;
+    overflow: hidden;
+  }
+
+  .score-header {
+    grid-area: header;
+    margin-top: 0;
+    margin-bottom: 0;
+  }
+
+  .header-top {
+    justify-content: flex-start;
+  }
+
+  .back-arrow {
+    width: 32px;
+    height: 32px;
+    transition: transform 0.2s;
+  }
+
+  .back-arrow:hover {
+    transform: translateX(-4px);
+  }
+
+  .page-title {
+    font-size: 32px;
+    margin: 6px 0 0 0;
+  }
+
+  .profile-summary {
+    grid-area: profile;
+    justify-content: flex-start;
+    align-items: center;
+    padding: 15px;
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 15px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    height: fit-content;
+  }
+
+  .mascot-illustration {
+    width: 120px;
+    height: 120px;
+    border: 3px solid rgba(255, 255, 255, 0.5);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  }
+
+  .level-info {
+    margin-top: 10px;
+    font-size: 20px;
+    line-height: 26px;
+  }
+
+  /* Wrapper pour progression et badges */
+  .content-wrapper {
+    grid-area: content;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    overflow-y: auto;
+    max-height: 100%;
+    padding-right: 5px;
+  }
+
+  .content-wrapper::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  .content-wrapper::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.05);
+    border-radius: 3px;
+  }
+
+  .content-wrapper::-webkit-scrollbar-thumb {
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 3px;
+  }
+
+  .content-wrapper::-webkit-scrollbar-thumb:hover {
+    background: rgba(0, 0, 0, 0.3);
+  }
+
+  .progress-section {
+    align-items: flex-start;
+    margin-top: 0;
+    padding: 15px;
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 15px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+  }
+
+  .progress-bar-container {
+    width: 100%;
+    max-width: 100%;
+    height: 32px;
+    border-radius: 10px;
+    box-shadow: 2px 4px 0 0 #000000;
+  }
+
+  .progress-bar-bg {
+    border-radius: 10px;
+  }
+
+  .progress-bar-value {
+    border-radius: 10px;
+  }
+
+  .xp-text {
+    margin-top: 10px;
+    font-size: 15px;
+    line-height: 20px;
+    font-weight: 600;
+  }
+
+  .badges-section {
+    margin-top: 0;
+    padding: 15px;
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 15px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+  }
+
+  .badges-title {
+    font-size: 18px;
+    line-height: 24px;
+    margin: 0 0 12px 0;
+  }
+
+  .badges-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    justify-items: center;
+  }
+
+  .badge-item {
+    width: 100%;
+    transition: transform 0.2s;
+  }
+
+  .badge-item:hover {
+    transform: translateY(-3px);
+  }
+
+  .badge-icon-wrapper {
+    width: 65px;
+    height: 65px;
+    background: rgba(255, 255, 255, 0.4);
+    border-radius: 50%;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  }
+
+  .badge-name {
+    margin-top: 6px;
+    font-size: 12px;
+    line-height: 16px;
+    font-weight: 600;
+  }
+
+  .main-actions {
+    grid-area: actions;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 12px;
+    max-width: 100%;
+    margin: 0;
+  }
+
+  .btn {
+    padding: 12px 40px;
+    font-size: 16px;
+    width: auto;
+    min-width: 280px;
+    transition: all 0.2s ease;
+  }
+
+  .btn:hover:not(:disabled) {
+    transform: translateY(2px);
+    box-shadow: 0 2px 0 0 var(--color-border, #4B4B4B);
+  }
+
+  .disconnect-btn {
+    min-width: 280px;
+  }
+
+  .delete-account-btn {
+    padding: 12px 40px;
+    font-size: 14px;
+    width: auto;
+    min-width: 280px;
+    border-radius: 4000px;
+    border: 2px solid var(--color-border, #4B4B4B);
+    box-shadow: 2px 4px 0 0 var(--color-border, #4B4B4B);
+    transition: all 0.2s ease;
+  }
+
+  .delete-account-btn:hover:not(:disabled) {
+    transform: translateY(2px);
+    box-shadow: 0 2px 0 0 var(--color-border, #4B4B4B);
+    opacity: 0.85;
+  }
+
+  .feedback {
+    grid-area: actions;
+    max-width: 100%;
+    font-size: 13px;
+    margin: 5px auto 0 auto;
+    align-self: end;
+  }
+}
+
+@media (min-width: 1024px) {
+  .score-page {
+    max-width: 1000px;
+    padding: 20px 40px;
+    grid-template-columns: 320px 1fr;
+    gap: 15px 30px;
+  }
+
+  .page-title {
+    font-size: 36px;
+  }
+
+  .profile-summary {
+    padding: 18px;
+  }
+
+  .mascot-illustration {
+    width: 140px;
+    height: 140px;
+  }
+
+  .level-info {
+    font-size: 22px;
+    line-height: 28px;
+  }
+
+  .content-wrapper {
+    gap: 15px;
+  }
+
+  .progress-section {
+    padding: 18px;
+  }
+
+  .progress-bar-container {
+    height: 36px;
+  }
+
+  .xp-text {
+    font-size: 16px;
+    line-height: 22px;
+  }
+
+  .badges-section {
+    padding: 18px;
+  }
+
+  .badges-title {
+    font-size: 20px;
+    line-height: 26px;
+    margin: 0 0 14px 0;
+  }
+
+  .badges-grid {
+    gap: 14px;
+  }
+
+  .badge-icon-wrapper {
+    width: 75px;
+    height: 75px;
+  }
+
+  .badge-name {
+    font-size: 13px;
+    line-height: 18px;
+  }
+
+  .btn {
+    padding: 14px 50px;
+    font-size: 18px;
+    min-width: 320px;
+  }
+
+  .disconnect-btn {
+    min-width: 320px;
+  }
+
+  .delete-account-btn {
+    padding: 14px 50px;
+    font-size: 15px;
+    min-width: 320px;
+    border-radius: 4000px;
+    border: 2px solid var(--color-border, #4B4B4B);
+    box-shadow: 2px 4px 0 0 var(--color-border, #4B4B4B);
+  }
+
+  .feedback {
+    font-size: 14px;
+  }
 }
 </style>
