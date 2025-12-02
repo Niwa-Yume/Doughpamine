@@ -210,6 +210,33 @@ export function useDough() {
 
   }
 
+  /**
+   * Renomme le levain
+   * @param newName - Le nouveau nom du levain
+   */
+  async function renameLevain(newName: string) {
+    if (!levain.value) return;
+
+    const trimmedName = newName.trim();
+    if (!trimmedName) {
+      throw new Error('Le nom ne peut pas être vide');
+    }
+
+    const { error: err } = await supabase
+      .from('levains')
+      .update({
+        name: trimmedName
+      })
+      .eq('id', levain.value.id);
+
+    if (err) throw err;
+
+    levain.value = {
+      ...levain.value,
+      name: trimmedName
+    };
+  }
+
   const lastFedHuman = computed(() => {
     if (!levain.value?.last_fed_at) return 'Jamais'
     const diffMs = Date.now() - new Date(levain.value.last_fed_at).getTime()
@@ -360,6 +387,7 @@ export function useDough() {
     updateStateBasedOnTime,
     mettreAuFrais,
     sortirDuFrais,
+    renameLevain,
     lastFedHuman,
     timeUntilHungry,
     hoursElapsed,

@@ -36,7 +36,7 @@ const routes: Array<RouteRecordRaw> = [
     path: '/creation-levain',
     name: 'CreationLevain',
     component: CreationLevainPage,
-    meta: { title: 'Création du Levain', requiresAuth: true }
+    meta: { title: 'Création du Levain' }
   },
   {
     path: '/chat',

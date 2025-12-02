@@ -31,7 +31,16 @@
           </DoughTimer>
 
 
-          <h1 class="home-page__name">{{ doughName }}</h1>
+          <h1 class="home-page__name">
+            {{ doughName }}
+            <button
+              class="home-page__edit-name"
+              @click="openRenameModal"
+              aria-label="Renommer le levain"
+            >
+              <ion-icon :icon="pencilOutline"></ion-icon>
+            </button>
+          </h1>
 
           <!-- Sélecteur d'état du levain -->
           <select
@@ -62,17 +71,27 @@
         />
         -->
       </div>
+
+      <!-- Modal de renommage -->
+      <RenameLevainModal
+        :is-open="isRenameModalOpen"
+        :current-name="doughName"
+        @close="closeRenameModal"
+        @renamed="handleRenamed"
+      />
     </ion-content>
   </ion-page>
 </template>
 
 <script setup lang="ts">
 import { ref, computed } from 'vue'
-import { IonPage, IonContent } from '@ionic/vue'
+import { IonPage, IonContent, IonIcon } from '@ionic/vue'
+import { pencilOutline } from 'ionicons/icons'
 import { useRoute } from 'vue-router'
 import NewButton from '@/components/NewButton.vue'
 import JotformAgent from '@/components/JotformAgent.vue'
 import DoughTimer from '@/components/DoughTimer.vue'
+import RenameLevainModal from '@/components/RenameLevainModal.vue'
 import { useDough } from '@/composables/useDough'
 import router from "@/router";
 
@@ -103,6 +122,22 @@ const currentStreak = computed(() => levain.value?.streak ?? 0);
 
 // Récupère le levain courant (si connecté)
 const { levain, states, feedLevain, updateLevainState, timeUntilHungry } = useDough();
+
+// État du modal de renommage
+const isRenameModalOpen = ref(false);
+
+function openRenameModal() {
+  isRenameModalOpen.value = true;
+}
+
+function closeRenameModal() {
+  isRenameModalOpen.value = false;
+}
+
+function handleRenamed(newName: string) {
+  console.log('✅ Levain renommé en:', newName);
+  // Le levain est déjà mis à jour dans useDough, pas besoin de faire autre chose
+}
 
 // Vidéo dynamique basée sur l'état actuel
 const currentVideo = computed(() => {
@@ -238,6 +273,21 @@ function onVideoLoaded(event: Event): void {
   border-radius: 50%;
 }
 
+/* Wrapper du nom + bouton d'édition */
+.home-page__name-wrapper {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm, 8px);
+  position: relative;
+  padding: var(--spacing-sm, 8px);
+  border-radius: var(--border-radius-lg, 15px);
+  transition: background-color var(--transition-fast, 120ms ease);
+}
+
+.home-page__name-wrapper:hover {
+  background-color: rgba(255, 255, 255, 0.3);
+}
+
 /* Nouveau: nom du levain */
 .home-page__name {
   font-family: var(--font-display, system-ui, sans-serif);
@@ -247,6 +297,39 @@ function onVideoLoaded(event: Event): void {
   letter-spacing: -0.73px;
   margin: 0;
   text-align: center;
+}
+
+.home-page__edit-name {
+  background: var(--pure-white, #FFFFFF);
+  border: 2px solid var(--color-border, #000);
+  border-radius: 50%;
+  cursor: pointer;
+  padding: 2px;
+  width: 28px;
+  height: 28px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--marron, #955934);
+  box-shadow: var(--shadow-sm, 1px 2px 0 0 rgba(0, 0, 0, 0.85));
+  transition: all var(--transition-fast, 120ms ease);
+  flex-shrink: 0;
+}
+
+.home-page__edit-name ion-icon {
+  font-size: 16px;
+}
+
+.home-page__edit-name:hover {
+  background-color: var(--marron, #955934);
+  color: var(--pure-white, #FFFFFF);
+  transform: translateY(-2px);
+  box-shadow: 1px 4px 0 0 rgba(0, 0, 0, 0.85);
+}
+
+.home-page__edit-name:active {
+  transform: translateY(1px);
+  box-shadow: 0 1px 0 0 rgba(0, 0, 0, 0.85);
 }
 
 /* Nouveau: select du statut */
@@ -327,6 +410,16 @@ function onVideoLoaded(event: Event): void {
 
   .home-page__dough-section {
     margin-top: var(--spacing-4xl);
+  }
+
+  .home-page__edit-name {
+    width: 36px;
+    height: 36px;
+    padding: 4px;
+  }
+
+  .home-page__edit-name ion-icon {
+    font-size: 20px;
   }
 
   .home-page__feed-button {
