@@ -37,6 +37,16 @@
             </div>
           </div>
         </section>
+
+        <div class="main-actions">
+          <button class="btn disconnect-btn" @click="logout" :disabled="signingOut">{{ signingOut ? 'Déconnexion...' : 'Déconnecter' }}</button>
+        </div>
+
+        <button class="btn delete-account-btn" @click="deleteAccount" :disabled="deleting">{{ deleting ? 'Suppression...' : 'supprimer le compte' }}</button>
+
+        <p v-if="message" class="feedback success">{{ message }}</p>
+        <p v-if="errorMsg" class="feedback error">{{ errorMsg }}</p>
+
       </main>
     </ion-content>
   </ion-page>
@@ -57,6 +67,7 @@ import iconFire from '@/../public/assets/SVG/badges/fire.svg';
 import iconHeart from '@/../public/assets/SVG/badges/heart.svg';
 import iconWater from '@/../public/assets/SVG/badges/water.svg';
 import iconClock from '@/../public/assets/SVG/badges/clock.svg';
+import {useAuth} from "@/composables/useAuth";
 
 const router = useRouter();
 const goBack = () => router.back();
@@ -78,10 +89,67 @@ const badges = ref([
   { name: 'Pizza', icon: iconPizza },
   { name: 'Blé', icon: iconWheat },
   { name: 'Feu', icon: iconFire },
-  { name: 'Cœur', icon: iconHeart },
-  { name: 'Eau', icon: iconWater },
-  { name: 'Horloge', icon: iconClock },
 ]);
+
+const { user, signOut } = useAuth();
+
+// États pour les boutons
+const saving = ref(false);
+const signingOut = ref(false);
+const deleting = ref(false);
+const errorMsg = ref('');
+const message = ref('');
+
+async function saveProfile() {
+  saving.value = true;
+  errorMsg.value = '';
+  message.value = '';
+
+  try {
+    // Logique de sauvegarde du profil (à implémenter selon vos besoins)
+    message.value = 'Profil sauvegardé avec succès';
+  } catch (e: any) {
+    errorMsg.value = e.message || 'Erreur lors de la sauvegarde';
+  } finally {
+    saving.value = false;
+  }
+}
+
+async function logout() {
+  signingOut.value = true;
+  errorMsg.value = '';
+  message.value = '';
+
+  try {
+    await signOut();
+    router.push('/auth');
+  } catch (e: any) {
+    errorMsg.value = e.message || 'Erreur déconnexion';
+  } finally {
+    signingOut.value = false;
+  }
+}
+
+async function deleteAccount() {
+  deleting.value = true;
+  errorMsg.value = '';
+  message.value = '';
+
+  try {
+    if (!user.value?.id) throw new Error('Utilisateur non connecté');
+
+    // Suppression du compte via Supabase Auth
+    await signOut();
+    router.push('/auth');
+
+    message.value = 'Compte marqué pour suppression (implémentation serveur requise).';
+  } catch (e: any) {
+    errorMsg.value = e.message || 'Erreur suppression';
+  } finally {
+    deleting.value = false;
+  }
+}
+
 </script>
 
 <style scoped>
@@ -230,5 +298,86 @@ const badges = ref([
   line-height: 16px;
   text-align: center;
   color: var(--text-color);
+}
+
+/* Styles pour les boutons d'action */
+.main-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+  max-width: 295px;
+  margin: 24px auto 20px auto;
+  align-items: center;
+}
+
+.btn {
+  padding: 15px;
+  border-radius: 4000px;
+  color: var(--pure-white, #FEFAE0);
+  font-family: var(--font-display), sans-serif;
+  font-weight: 400;
+  font-size: 18px;
+  width: 100%;
+  border: 2px solid var(--color-border, #4B4B4B);
+  box-shadow: 2px 4px 0 0 var(--color-border, #4B4B4B);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn:hover:not(:disabled) {
+  transform: translateY(2px);
+  box-shadow: 0 2px 0 0 var(--color-border, #4B4B4B);
+}
+
+.btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.save-btn {
+  background-color: var(--color-progress-bg, #58CC02);
+}
+
+.disconnect-btn {
+  background-color: var(--marron, #BC6C25);
+}
+
+.delete-account-btn {
+  background-color: var(--color-error, #C1121F);
+  border-radius: 10px;
+  padding: 15px;
+  color: var(--pure-white, #FEFAE0);
+  font-family: var(--font-display), sans-serif;
+  font-weight: 400;
+  font-size: 15px;
+  width: 100%;
+  max-width: 291px;
+  border: none;
+  box-shadow: none;
+  text-transform: uppercase;
+}
+
+.delete-account-btn:hover:not(:disabled) {
+  transform: none;
+  box-shadow: none;
+  opacity: 0.9;
+}
+
+.feedback {
+  width: 100%;
+  max-width: 295px;
+  margin: 4px auto;
+  font-size: 14px;
+  text-align: center;
+  font-family: var(--font-body), sans-serif;
+}
+
+.feedback.success {
+  color: var(--color-success, #58CC02);
+}
+
+.feedback.error {
+  color: var(--color-error, #C1121F);
 }
 </style>

@@ -51,6 +51,27 @@ async function signInWithGoogle(redirectPath: string = '/home') {
   if (error) throw error;
 }
 
+// Fonction pour obtenir la page de redirection appropriée après connexion
+async function getRedirectPath(): Promise<string> {
+  if (!user.value?.id) return '/auth';
+
+  // Vérifier si l'utilisateur a un levain (prendre le plus récent)
+  const { data: levainList } = await supabase
+    .from('levains')
+    .select('id')
+    .eq('user_id', user.value.id)
+    .order('created_at', { ascending: false })
+    .limit(1);
+
+  // Si pas de levain, rediriger vers la création
+  if (!levainList || levainList.length === 0) {
+    return '/create-dough';
+  }
+
+  // Sinon, rediriger vers la page d'accueil
+  return '/home';
+}
+
 export function useAuth() {
   onMounted(initSession);
   return {
@@ -62,5 +83,6 @@ export function useAuth() {
     signOut,
     signInWithGoogle,
     refreshSession: initSession,
+    getRedirectPath,
   };
 }

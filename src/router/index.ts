@@ -86,8 +86,58 @@ router.beforeEach(async (to, _from, next) => {
     return;
   }
   if (['/auth','/login','/register','/signup'].includes(to.path) && authed) {
-    const redirect = (to.query?.redirect as string) || '/profile';
-    next(redirect);
+    // Si query redirect existe, l'utiliser SAUF si c'est vers profile ou score
+    const queryRedirect = to.query?.redirect as string;
+
+    // Ignorer les redirections vers profile/score (proviennent souvent de déconnexions)
+    const shouldIgnoreRedirect = queryRedirect &&
+      (queryRedirect.includes('/profile') || queryRedirect.includes('/score'));
+
+    console.log('🔍 Router: queryRedirect=', queryRedirect, 'shouldIgnoreRedirect=', shouldIgnoreRedirect);
+
+    if (queryRedirect && !shouldIgnoreRedirect) {
+      console.log('✅ Router: Redirection vers', queryRedirect);
+      next(queryRedirect);
+      return;
+    }
+
+    // Vérifier si l'utilisateur a un levain
+    if (data.session?.user?.id) {
+      console.log('🔍 Router: Vérification levain pour user_id=', data.session.user.id);
+
+      try {
+        // Prendre le levain le plus récent (order by created_at DESC + limit 1)
+        const { data: levainList, error: levainError } = await supabase
+          .from('levains')
+          .select('id, user_id, name')
+          .eq('user_id', data.session.user.id)
+          .order('created_at', { ascending: false })
+          .limit(1);
+
+        const levainData = levainList && levainList.length > 0 ? levainList[0] : null;
+
+        console.log('🔍 Router: levainData=', levainData, 'error=', levainError);
+
+        // Si erreur de requête, on assume qu'il n'y a pas de levain (sécurité)
+        if (levainError) {
+          console.warn('⚠️ Router: Erreur lors de la vérification du levain:', levainError);
+        }
+
+        const redirect = (levainData && !levainError) ? '/home' : '/create-dough';
+        console.log('✅ Router: Redirection finale vers', redirect, 'hasLevain=', !!levainData);
+        next(redirect);
+        return;
+      } catch (error) {
+        console.error('❌ Router: Exception lors de la vérification du levain:', error);
+        // En cas d'erreur, rediriger vers create-dough par sécurité
+        next('/create-dough');
+        return;
+      }
+    }
+
+    // Fallback si pas de session (ne devrait pas arriver)
+    console.log('⚠️ Router: Fallback vers /home (pas de session)');
+    next('/home');
     return;
   }
   next();

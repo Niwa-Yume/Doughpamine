@@ -31,12 +31,6 @@
               <p v-else class="empty-dough">Aucun levain pour le moment.</p>
             </section>
 
-            <div class="main-actions">
-              <button class="btn save-btn" :disabled="saving" @click="saveProfile">{{ saving ? 'Sauvegarde...' : 'Sauvegarder' }}</button>
-              <button class="btn disconnect-btn" @click="logout" :disabled="signingOut">{{ signingOut ? 'Déconnexion...' : 'Déconnecter' }}</button>
-            </div>
-
-            <button class="btn delete-account-btn" @click="deleteAccount" :disabled="deleting">{{ deleting ? 'Suppression...' : 'supprimer le compte' }}</button>
 
             <p v-if="message" class="feedback success">{{ message }}</p>
             <p v-if="errorMsg" class="feedback error">{{ errorMsg }}</p>
@@ -52,19 +46,17 @@ import { IonPage, IonContent } from '@ionic/vue';
 import { useRouter } from 'vue-router';
 import { useAuth } from '@/composables/useAuth';
 import { supabase } from '@/lib/supabaseClient';
-import { ref, watch, onMounted } from 'vue';
+import { ref, watch } from 'vue';
 
 interface SimpleDough { id: string; name: string; status?: string; image: string }
 
 const router = useRouter();
-const { user, signOut, sessionLoaded, isAuthenticated } = useAuth();
+const { user, sessionLoaded, isAuthenticated } = useAuth();
 
 const email = ref('');
 const username = ref('');
 const doughs = ref<SimpleDough[]>([]);
 const saving = ref(false);
-const signingOut = ref(false);
-const deleting = ref(false);
 const message = ref('');
 const errorMsg = ref('');
 
@@ -80,8 +72,8 @@ watch(user, (u) => {
 
 function goBack() { router.back(); }
 function goAuth() {
-  const redirect = router.currentRoute.value.fullPath || '/profile';
-  router.push({ path: '/auth', query: { redirect } });
+  const redirect = router.currentRoute.value.fullPath || '/home';
+  router.push({ path: '/home', query: { redirect } });
 }
 
 async function fetchDoughs() {
@@ -141,29 +133,7 @@ async function saveProfile() {
   } finally { saving.value = false; }
 }
 
-async function logout() {
-  signingOut.value = true; errorMsg.value=''; message.value='';
-  try {
-    await signOut();
-    // La redirection sera gérée automatiquement par App.vue onAuthStateChange
-  }
-  catch (e: any) {
-    errorMsg.value = e.message || 'Erreur déconnexion';
-  }
-  finally { signingOut.value=false; }
-}
 
-async function deleteAccount() {
-  deleting.value = true; errorMsg.value=''; message.value='';
-  try {
-    // Suppression compte nécessite service role key côté backend (non disponible ici)
-    // On masque l'utilisateur en le déconnectant.
-    await signOut();
-    // La redirection sera gérée automatiquement par le router
-    message.value = 'Compte marqué pour suppression (implémentation serveur requise).';
-  } catch (e: any) { errorMsg.value = e.message || 'Erreur suppression'; }
-  finally { deleting.value=false; }
-}
 </script>
 
 <style scoped>

@@ -48,16 +48,16 @@ export function useDough() {
     error.value = null
 
     try {
-      const { data, error: err } = await supabase
+      // Prendre le levain le plus récent (gère le cas de plusieurs levains)
+      const { data: levainList, error: err } = await supabase
         .from('levains')
         .select('*')
         .eq('user_id', user.value.id)
         .order('created_at', { ascending: false })
         .limit(1)
-        .maybeSingle()
 
       if (err) throw err
-      levain.value = data ?? null
+      levain.value = (levainList && levainList.length > 0) ? levainList[0] : null
     } catch (e: any) {
       error.value = e?.message ?? 'Impossible de récupérer le levain'
       levain.value = null
@@ -373,5 +373,6 @@ export function useDough() {
     lastFedHuman,
     timeUntilHungry,
     hoursElapsed,
+    hasLevain: computed(() => !!levain.value),
   }
 }
