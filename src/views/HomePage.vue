@@ -33,9 +33,6 @@
 
           <h1 class="home-page__name">{{ doughName }}</h1>
 
-          <!-- Affichage de la streak avec animation -->
-          <StreakDisplay :streak="currentStreak" />
-
           <!-- Sélecteur d'état du levain -->
           <select
             class="home-page__status-select"
