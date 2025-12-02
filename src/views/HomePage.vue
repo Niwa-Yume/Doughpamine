@@ -207,7 +207,6 @@ function onVideoLoaded(event: Event): void {
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: space-around;
   gap: var(--spacing-xl);
   padding-top: var(--spacing-lg);
   padding-bottom: var(--spacing-2xl);
@@ -288,11 +287,21 @@ function onVideoLoaded(event: Event): void {
 /* ========================================
    RESPONSIVE - Tablet & Desktop
    ======================================== */
+
+@media (min-width: 390px) {
+  .home-page {
+    gap: var(--spacing-xl);
+    justify-content: space-evenly;
+  }
+}
+
+
 @media (min-width: 768px) {
   .home-page {
     gap: var(--spacing-2xl);
     padding-top: var(--spacing-2xl);
     min-height: auto;
+    justify-content: space-evenly;
   }
 
   .home-page__dough-section {
@@ -312,6 +321,8 @@ function onVideoLoaded(event: Event): void {
   .home-page {
     gap: var(--spacing-3xl);
     padding-top: var(--spacing-3xl);
+    justify-content: space-evenly;
+
   }
 
   .home-page__dough-section {
