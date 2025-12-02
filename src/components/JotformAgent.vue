@@ -1,12 +1,15 @@
 <template>
-  <div class="jotform-header-container">
-    <IconListComponent />
+  <div v-if="isHomePage" class="jotform-header-container">
+    <div class="icon-wrapper-area">
+      <IconListComponent />
+    </div>
     <div ref="anchor" class="jotform-agent-anchor" aria-hidden="true" />
   </div>
 </template>
 
 <script lang="ts">
-import { defineComponent, onMounted, onBeforeUnmount, ref } from 'vue'
+import { defineComponent, onMounted, onBeforeUnmount, ref, computed, watch } from 'vue'
+import { useRoute } from 'vue-router'
 import IconListComponent from './IconListComponent.vue'
 
 export default defineComponent({
@@ -23,7 +26,11 @@ export default defineComponent({
   },
   setup(props) {
     const anchor = ref<HTMLElement | null>(null)
+    const route = useRoute()
+    const isHomePage = computed(() => route.path === '/home')
+    const scriptRef = ref<HTMLScriptElement | null>(null)
     let domObserver: MutationObserver | null = null
+    let isAgentActive = false
 
     const setImportant = (el: HTMLElement | null) => {
       if (!el) return
@@ -42,6 +49,8 @@ export default defineComponent({
       el.style.setProperty('right', 'auto', 'important')
       el.style.setProperty('bottom', 'auto', 'important')
       el.style.setProperty('margin', '0', 'important')
+      el.style.setProperty('width', 'fit-content', 'important')
+      el.style.setProperty('height', 'fit-content', 'important')
       el.style.setProperty('z-index', '9999', 'important')
       el.style.setProperty('transform', `scale(${props.scale})`, 'important')
       el.style.setProperty('transform-origin', 'top left', 'important')
@@ -68,19 +77,27 @@ export default defineComponent({
       return true
     }
 
-    const ensureOnce = () => {
+    const loadAgentScript = () => {
       const existingRoot = document.getElementById(`JotformAgent-${props.agentId}`)
       if (existingRoot) return true
 
-      const existingScript = document.querySelector(`script[src*="${props.agentId}/embed.js"]`)
-      if (existingScript) return true
+      if (scriptRef.value) return false
 
       const s = document.createElement('script')
       s.async = true
       s.src = `https://cdn.jotfor.ms/agent/embedjs/${props.agentId}/embed.js`
       s.setAttribute('data-jot-agent', 'true')
       ;(anchor.value ?? document.body).appendChild(s)
+      scriptRef.value = s
       return false
+    }
+
+    const cleanupAgentDom = () => {
+      document.getElementById(`JotformAgent-${props.agentId}`)?.remove()
+      if (scriptRef.value) {
+        scriptRef.value.remove()
+        scriptRef.value = null
+      }
     }
 
     // Gestion du resize pour recalculer la position
@@ -88,25 +105,51 @@ export default defineComponent({
       applyStyles()
     }
 
-    onMounted(() => {
-      const already = ensureOnce()
+    const stopObserver = () => {
+      if (domObserver) {
+        domObserver.disconnect()
+        domObserver = null
+      }
+    }
 
-      domObserver = new MutationObserver(() => {
-        applyStyles()
-      })
+    const startAgent = () => {
+      if (isAgentActive) return
+      isAgentActive = true
+      const already = loadAgentScript()
+      domObserver = new MutationObserver(() => applyStyles())
       domObserver.observe(document.body, { childList: true, subtree: true, attributes: true })
-
       window.addEventListener('resize', handleResize)
-
       if (already) applyStyles()
+    }
+
+    const stopAgent = () => {
+      if (!isAgentActive) return
+      isAgentActive = false
+      stopObserver()
+      window.removeEventListener('resize', handleResize)
+      cleanupAgentDom()
+    }
+
+    const stopRouteWatch = watch(
+      isHomePage,
+      (val) => {
+        if (val) startAgent()
+        else stopAgent()
+      },
+      { immediate: true }
+    )
+
+    onMounted(() => {
+      // ensure anchor exists before script injection
+      if (isHomePage.value) startAgent()
     })
 
     onBeforeUnmount(() => {
-      if (domObserver) { domObserver.disconnect(); domObserver = null }
-      window.removeEventListener('resize', handleResize)
+      stopRouteWatch()
+      stopAgent()
     })
 
-    return { anchor }
+    return { anchor, isHomePage }
   }
 })
 </script>
@@ -123,11 +166,15 @@ export default defineComponent({
   pointer-events: none;
 }
 
+.icon-wrapper-area {
+  pointer-events: auto;
+}
+
 .jotform-agent-anchor {
   position: absolute;
   top: 0;
   left: 0;
-  width: 0;
+  width: fit-content;
   height: 0;
   pointer-events: none; /* ne bloque aucun clic */
 }

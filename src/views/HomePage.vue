@@ -1,8 +1,8 @@
 <template>
   <ion-page>
     <ion-content>
-      <!-- Widget AI Jotform via composant dédié -->
-      <JotformAgent @click="navigateToChat" />
+      <!-- Widget AI Jotform via composant dédié - Uniquement visible sur /home -->
+      <JotformAgent v-if="isHomePage" @click="navigateToChat" />
 
       <div class="home-page app-container">
 
@@ -72,11 +72,15 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 import { IonPage, IonContent } from '@ionic/vue'
+import { useRoute } from 'vue-router'
 import NewButton from '@/components/NewButton.vue'
 import JotformAgent from '@/components/JotformAgent.vue'
 import DoughTimer from '@/components/DoughTimer.vue'
 import { useDough } from '@/composables/useDough'
 import router from "@/router";
+
+const route = useRoute()
+const isHomePage = computed(() => route.path === '/home')
 
 
 // Mapping des états vers les vidéos

@@ -8,6 +8,9 @@
 import { IonApp, IonRouterOutlet } from '@ionic/vue';
 import { supabase } from '@/lib/supabaseClient';
 import { onMounted } from 'vue';
+import { useRouter } from 'vue-router';
+
+const router = useRouter();
 
 // Gestion de la redirection auth avec Ionic Router
 onMounted(() => {
@@ -22,8 +25,7 @@ onMounted(() => {
     if (!authed) {
       if (currentPath !== '/auth' && currentPath !== '/login' && currentPath !== '/register') {
         isRedirecting = true;
-        const redirectUrl = `/auth?redirect=${encodeURIComponent(currentPath)}`;
-        window.location.href = redirectUrl;
+        router.push({ path: '/auth', query: { redirect: currentPath } });
       }
       return;
     }
@@ -74,7 +76,7 @@ onMounted(() => {
 
       console.log('✅ App.vue: Redirection finale vers', redirect);
       isRedirecting = true;
-      window.location.href = redirect;
+      router.push(redirect);
     }
   });
 });
