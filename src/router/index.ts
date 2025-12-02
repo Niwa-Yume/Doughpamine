@@ -3,7 +3,6 @@ import { RouteRecordRaw } from 'vue-router';
 import HomePage from '../views/HomePage.vue';
 import ChatPage from '../views/ChatPage.vue';
 import ScorePage from '../views/ScorePage.vue';
-import ProfilePage from '../views/ProfilePage.vue';
 import AuthPage from '../views/AuthPage.vue';
 import CreateDough from '../views/CreateDough.vue';
 import LiaisonLevainPage from '../views/LiaisonLevainPage.vue';
@@ -50,12 +49,6 @@ const routes: Array<RouteRecordRaw> = [
     name: 'Score',
     component: ScorePage,
     meta: { title: 'Score', requiresAuth: true }
-  },
-  {
-    path: '/profile',
-    name: 'Profile',
-    component: ProfilePage,
-    meta: { title: 'Profil', requiresAuth: true }
   },
   {
     path: '/auth',
