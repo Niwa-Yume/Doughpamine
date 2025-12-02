@@ -1,6 +1,12 @@
 import { ref, computed, watchEffect } from 'vue'
 import { supabase } from '@/lib/supabaseClient'
 import { useAuth } from '@/composables/useAuth'
+import {
+    shouldAutoTransition,
+    STATE_DB_TO_MACHINE,
+    STATE_MACHINE_TO_DB,
+    LEVAIN_STATE_MACHINE, parseDelayHours
+} from '@/config/levainStateMachine'
 
 export interface LevainState {
   name: string
@@ -80,21 +86,73 @@ export function useDough() {
     }
   }
 
-  async function feedLevain() {
+    async function feedLevain() {
+        if (!levain.value) return
+
+        const lastFed = levain.value.last_fed_at ? new Date(levain.value.last_fed_at) : null;
+        const today = new Date();
+
+        const isFirstFeedToday = !lastFed || (
+            lastFed.getFullYear() !== today.getFullYear() ||
+            lastFed.getMonth() !== today.getMonth() ||
+            lastFed.getDate() !== today.getDate()
+        );
+
+        console.log(`🔥 Avant nourrir: streak=${levain.value.streak}, lastFed=${lastFed}, isFirstToday=${isFirstFeedToday}`);
+
+        const nextStreak = isFirstFeedToday
+            ? (levain.value.streak ?? 0) + 1
+            : levain.value.streak;
+
+        const currentStateMachine = STATE_DB_TO_MACHINE[levain.value.current_state_name];
+        const stateConfig = currentStateMachine ? LEVAIN_STATE_MACHINE.states[currentStateMachine] : null;
+
+        const nextLastFed = nowISO();
+        let nextState = levain.value.current_state_name;
+
+        if (stateConfig?.actions.nourrir) {
+            const nourrirAction = stateConfig.actions.nourrir;
+            const nextMachineState = nourrirAction.to;
+            nextState = STATE_MACHINE_TO_DB[nextMachineState] || nextState;
+        } else {
+            nextState = DEFAULT_FED_STATE;
+        }
+
+        console.log(`🍞 Nourrissage: ${levain.value.current_state_name} → ${nextState}, streak: ${levain.value.streak} → ${nextStreak}`);
+
+        const { error: err } = await supabase
+            .from('levains')
+            .update({
+                last_fed_at: nextLastFed,
+                current_state_name: nextState,
+                streak: nextStreak
+            })
+            .eq('id', levain.value.id)
+
+        if (err) throw err
+
+        // ✅ 4. Mettre à jour l'état local
+        levain.value = {
+            ...levain.value,
+            last_fed_at: nextLastFed,
+            current_state_name: nextState,
+            streak: nextStreak
+        }
+    }
+
+
+    async function updateLevainState(stateName: string) {
     if (!levain.value) return
 
-    const nextLastFed = nowISO()
-    const nextState = states.value.find((s) => s.name === DEFAULT_FED_STATE)
-      ? DEFAULT_FED_STATE
-      : levain.value.current_state_name
-    const nextStreak = (levain.value.streak ?? 0) + 1
+    // Quand on change manuellement l'état, on met à jour last_fed_at
+    // pour éviter les transitions automatiques immédiates
+    const now = nowISO();
 
     const { error: err } = await supabase
       .from('levains')
       .update({
-        last_fed_at: nextLastFed,
-        current_state_name: nextState,
-        streak: nextStreak,
+        current_state_name: stateName,
+        last_fed_at: now
       })
       .eq('id', levain.value.id)
 
@@ -102,26 +160,59 @@ export function useDough() {
 
     levain.value = {
       ...levain.value,
-      last_fed_at: nextLastFed,
-      current_state_name: nextState,
-      streak: nextStreak,
+      current_state_name: stateName,
+      last_fed_at: now
     }
   }
 
-  async function updateLevainState(stateName: string) {
-    if (!levain.value) return
+  /**
+   * Met le levain au frais (réfrigérateur)
+   */
+  async function mettreAuFrais() {
+    if (!levain.value) return;
+
+    const nextState = STATE_MACHINE_TO_DB['au_frais'];
 
     const { error: err } = await supabase
       .from('levains')
-      .update({ current_state_name: stateName })
-      .eq('id', levain.value.id)
+      .update({
+        current_state_name: nextState
+      })
+      .eq('id', levain.value.id);
 
-    if (err) throw err
+    if (err) throw err;
 
     levain.value = {
       ...levain.value,
-      current_state_name: stateName,
-    }
+      current_state_name: nextState
+    };
+
+    console.log('🧊 Levain mis au frais');
+  }
+
+  /**
+   * Sort le levain du frais (retour à température ambiante)
+   */
+  async function sortirDuFrais() {
+    if (!levain.value) return;
+
+    const nextState = STATE_MACHINE_TO_DB['actif'];
+
+    const { error: err } = await supabase
+      .from('levains')
+      .update({
+        current_state_name: nextState
+      })
+      .eq('id', levain.value.id);
+
+    if (err) throw err;
+
+    levain.value = {
+      ...levain.value,
+      current_state_name: nextState
+    };
+
+    console.log('🌡️ Levain sorti du frais');
   }
 
   const lastFedHuman = computed(() => {
@@ -135,55 +226,84 @@ export function useDough() {
     return days === 1 ? 'Il y a 1 jour' : `Il y a ${days} jours`
   })
 
-  const timeUntilHungry = computed(() => {
-    if (!levain.value?.last_fed_at) return 0
-    const lastFed = new Date(levain.value.last_fed_at)
-    const hungryTime = new Date(lastFed.getTime() + 24 * 60 * 60 * 1000)
-    return Math.max(0, hungryTime.getTime() - Date.now())
-  })
+    const timeUntilHungry = computed(() => {
+        if (!levain.value?.last_fed_at) return 0
 
-  const hoursElapsed = computed(() => {
+        const machineState = STATE_DB_TO_MACHINE[levain.value.current_state_name]
+        console.log('🔍 Current state (DB):', levain.value.current_state_name)
+        console.log('🔍 Machine state:', machineState)
+
+        const stateConfig = machineState ? LEVAIN_STATE_MACHINE.states[machineState] : null
+        const rienFaireAction = stateConfig?.actions.rien_faire
+
+        console.log('🔍 Rien faire action:', rienFaireAction)
+        console.log('🔍 delay_h brut:', rienFaireAction?.delay_h)
+
+        if (!rienFaireAction?.delay_h) return 0
+
+        const delayHours = parseDelayHours(rienFaireAction.delay_h) || 24
+        console.log('🔍 delay_h parsé:', delayHours)
+
+        const lastFed = new Date(levain.value.last_fed_at)
+        const transitionTime = new Date(lastFed.getTime() + delayHours * 60 * 60 * 1000)
+
+        return Math.max(0, transitionTime.getTime() - Date.now())
+    })
+
+
+
+
+    const hoursElapsed = computed(() => {
     if (!levain.value?.last_fed_at) return 0
     const diffMs = Date.now() - new Date(levain.value.last_fed_at).getTime()
     return Math.floor(diffMs / (1000 * 60 * 60))
   })
 
   /**
-   * Calcule l'état du levain basé sur le temps écoulé depuis le dernier nourrissage
-   */
-  function calculateStateFromTime(hoursElapsed: number, currentState: string): string {
-    // Si le levain est au frais ou mort, ne pas changer automatiquement
-    if (currentState === 'Au frais' || currentState === 'Mort') {
-      return currentState;
-    }
-
-    // Logique de dégradation basée sur le temps
-    if (hoursElapsed >= 72) {
-      return 'Mort'; // Plus de 72h (3 jours)
-    } else if (hoursElapsed >= 48) {
-      return 'Neglige'; // Entre 48h et 72h (2-3 jours)
-    } else if (hoursElapsed >= 24) {
-      return 'Affame'; // Entre 24h et 48h (1-2 jours)
-    } else if (hoursElapsed >= 12) {
-      return 'Actif'; // Entre 12h et 24h
-    } else {
-      return 'Actif/pret'; // Moins de 12h
-    }
-  }
-
-  /**
    * Met à jour automatiquement l'état du levain basé sur le temps écoulé
+   * Utilise la machine à états définie dans levainStateMachine.ts
    */
   async function updateStateBasedOnTime() {
-    if (!levain.value?.last_fed_at) return;
+    if (!levain.value) return;
 
-    const hours = hoursElapsed.value;
-    const currentState = levain.value.current_state_name;
-    const calculatedState = calculateStateFromTime(hours, currentState);
+    const lastActionAt = levain.value.last_fed_at
+      ? new Date(levain.value.last_fed_at)
+      : new Date(levain.value.created_at);
 
-    // Si l'état calculé est différent de l'état actuel, mettre à jour
-    if (calculatedState !== currentState) {
-      await updateLevainState(calculatedState);
+    const { shouldTransition, nextState } = shouldAutoTransition(
+      levain.value.current_state_name,
+      lastActionAt,
+      null // On n'a pas au_frais_since pour l'instant
+    );
+
+    if (shouldTransition && nextState) {
+      console.log(`🔄 Transition automatique: ${levain.value.current_state_name} → ${nextState}`);
+
+      // Réinitialiser la streak si le levain devient Négligé ou Mort
+      const shouldResetStreak = nextState === 'Neglige' || nextState === 'Mort';
+      const updates: any = {
+        current_state_name: nextState
+      };
+
+      if (shouldResetStreak && levain.value.streak > 0) {
+        updates.streak = 0;
+        console.log(`💔 Série perdue ! Réinitialisation de ${levain.value.streak} → 0`);
+      }
+
+      const { error: err } = await supabase
+        .from('levains')
+        .update(updates)
+        .eq('id', levain.value.id);
+
+      if (err) {
+        console.error('❌ Erreur transition auto:', err);
+        return;
+      }
+
+      levain.value = {
+        ...levain.value,
+        ...updates
+      };
     }
   }
 
@@ -199,15 +319,32 @@ export function useDough() {
 
   // Vérifier et mettre à jour l'état toutes les 5 minutes
   let stateCheckInterval: NodeJS.Timeout | null = null;
+  let isCheckingState = false; // Empêche les vérifications concurrentes
 
   watchEffect((onCleanup) => {
-    if (levain.value) {
-      // Vérifier immédiatement
-      updateStateBasedOnTime();
+    if (levain.value && !isCheckingState) {
+      // Vérifier immédiatement (avec un petit délai pour éviter les cascades)
+      setTimeout(() => {
+        if (!isCheckingState) {
+          isCheckingState = true;
+          updateStateBasedOnTime().finally(() => {
+            isCheckingState = false;
+          });
+        }
+      }, 100);
 
       // Puis toutes les 5 minutes
+      if (stateCheckInterval) {
+        clearInterval(stateCheckInterval);
+      }
+
       stateCheckInterval = setInterval(() => {
-        updateStateBasedOnTime();
+        if (!isCheckingState) {
+          isCheckingState = true;
+          updateStateBasedOnTime().finally(() => {
+            isCheckingState = false;
+          });
+        }
       }, 5 * 60 * 1000); // 5 minutes
     }
 
@@ -231,7 +368,8 @@ export function useDough() {
     feedLevain,
     updateLevainState,
     updateStateBasedOnTime,
-    calculateStateFromTime,
+    mettreAuFrais,
+    sortirDuFrais,
     lastFedHuman,
     timeUntilHungry,
     hoursElapsed,

@@ -83,6 +83,7 @@ interface Props {
   showTimeLabel?: boolean;
   acceleratedMode?: boolean;
   contentSize?: number;
+  maxDuration?: number;
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -91,6 +92,7 @@ const props = withDefaults(defineProps<Props>(), {
   showTimeLabel: false,
   acceleratedMode: false,
   contentSize: 200,
+  maxDuration: 24 * 60 * 60 * 1000, // ça vaut 24H en milliseconde
 });
 
 const emit = defineEmits<{
@@ -129,20 +131,20 @@ const elapsedTime = computed(() => {
  * Calcule le temps restant en millisecondes (24h max)
  */
 const timeRemaining = computed(() => {
-  const TWENTY_FOUR_HOURS = 24 * 60 * 60 * 1000;
-  const remaining = TWENTY_FOUR_HOURS - elapsedTime.value;
+  const remaining = props.maxDuration - elapsedTime.value;
   return Math.max(0, remaining);
 });
+
 
 /**
  * Calcule le pourcentage de progression (0-100)
  * 0% = vient d'être nourri, 100% = 24h écoulées
  */
 const progressPercentage = computed(() => {
-  const TWENTY_FOUR_HOURS = 24 * 60 * 60 * 1000;
-  const percentage = (elapsedTime.value / TWENTY_FOUR_HOURS) * 100;
+  const percentage = (elapsedTime.value / props.maxDuration) * 100;
   return Math.min(100, Math.max(0, percentage));
 });
+
 
 /**
  * Calcule l'offset du stroke-dasharray pour animer le cercle

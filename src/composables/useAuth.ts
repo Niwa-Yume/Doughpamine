@@ -39,7 +39,7 @@ async function signOut() {
 }
 
 // Google OAuth (Web)
-async function signInWithGoogle(redirectPath: string = '/auth') {
+async function signInWithGoogle(redirectPath: string = '/home') {
   const redirectTo = `${window.location.origin}${redirectPath}`;
   const { error } = await supabase.auth.signInWithOAuth({
     provider: 'google',
@@ -60,7 +60,6 @@ export function useAuth() {
     signIn,
     signUp,
     signOut,
-    // expose Google OAuth
     signInWithGoogle,
     refreshSession: initSession,
   };

@@ -1,21 +1,11 @@
-<!--
-  HomePage - Page d'accueil avec le levain et timer de nourrissage
-
-  Affiche :
-  - Widget AI Jotform pour assistance
-  - Timer circulaire visuel (24h)
-  - Nom du levain + sélection de statut
-  - Bouton pour nourrir le levain
--->
 <template>
   <ion-page>
     <ion-content>
       <!-- Widget AI Jotform via composant dédié -->
-      <JotformAgent />
+      <JotformAgent @click="navigateToChat" />
 
       <div class="home-page app-container">
 
-        <!-- Timer circulaire avec le levain au centre -->
         <div class="home-page__dough-section" v-if="levain">
           <DoughTimer
             :lastFeedTime="computedLastFeedTime"
@@ -24,6 +14,7 @@
             :strokeWidth="6"
             :showTimeLabel="true"
             :acceleratedMode="DEBUG_ACCELERATED_MODE"
+            :maxDuration="timeUntilHungry"
             @timeExpired="handleTimerExpired"
           >
             <video
@@ -39,8 +30,11 @@
             ></video>
           </DoughTimer>
 
-          <!-- Nom du levain -->
+
           <h1 class="home-page__name">{{ doughName }}</h1>
+
+          <!-- Affichage de la streak avec animation -->
+          <StreakDisplay :streak="currentStreak" />
 
           <!-- Sélecteur d'état du levain -->
           <select
@@ -64,7 +58,7 @@
           :disabled="!levain"
         />
 
-       <!-- DEBUG: Contrôles de test du timer (À SUPPRIMER en production)
+       <!-- Contrôles de test du timer
         <TimerDebugControls
           :lastFeedTime="computedLastFeedTime"
           @updateTime="updateDebugTime"
@@ -82,6 +76,7 @@ import NewButton from '@/components/NewButton.vue'
 import JotformAgent from '@/components/JotformAgent.vue'
 import DoughTimer from '@/components/DoughTimer.vue'
 import { useDough } from '@/composables/useDough'
+import router from "@/router";
 
 
 // Mapping des états vers les vidéos
@@ -103,22 +98,23 @@ const STATE_TO_VIDEO: Record<string, string> = {
 
 // Vidéo par défaut si l'état n'est pas reconnu
 const DEFAULT_VIDEO = '/assets/video/levain basique.mp4';
+const currentStreak = computed(() => levain.value?.streak ?? 0);
 
 // Récupère le levain courant (si connecté)
-const { levain, states, feedLevain, updateLevainState } = useDough();
+const { levain, states, feedLevain, updateLevainState, timeUntilHungry } = useDough();
 
 // Vidéo dynamique basée sur l'état actuel
 const currentVideo = computed(() => {
   const stateName = levain.value?.current_state_name;
-  console.log('🎬 État actuel:', stateName);
+  //console.log('🎬 État actuel:', stateName);
 
   if (!stateName) {
-    console.log('⚠️ Pas d\'état, vidéo par défaut:', DEFAULT_VIDEO);
+    //console.log('⚠️ Pas d\'état, vidéo par défaut:', DEFAULT_VIDEO);
     return DEFAULT_VIDEO;
   }
 
   const video = STATE_TO_VIDEO[stateName] || DEFAULT_VIDEO;
-  console.log('🎥 Vidéo sélectionnée:', video);
+  //console.log('🎥 Vidéo sélectionnée:', video);
 
   return video;
 });
@@ -159,10 +155,21 @@ const computedLastFeedTime = computed(() => {
  * Nourrit le levain et réinitialise le timer
  */
 async function handleFeed(): Promise<void> {
-  if (!levain.value) return;
+  console.log('🎯 handleFeed appelée !', levain.value);
+  if (!levain.value) {
+    console.log('❌ Pas de levain, annulation');
+    return;
+  }
+  console.log('✅ Appel de feedLevain()');
   await feedLevain();
 }
 
+/**
+ * Navigue vers la page de liaison de levain existant
+ */
+function navigateToChat(): void {
+  router.push('/chat');
+}
 
 /**
  * Gère l'expiration du timer (24h écoulées)
@@ -190,7 +197,7 @@ function onVideoError(event: Event): void {
  */
 function onVideoLoaded(event: Event): void {
   const video = event.target as HTMLVideoElement;
-  console.log('✅ VIDÉO CHARGÉE:', video.src);
+  //console.log('✅ VIDÉO CHARGÉE:', video.src);
 }
 </script>
 

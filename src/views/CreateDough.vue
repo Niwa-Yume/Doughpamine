@@ -54,6 +54,7 @@ function navigateToCreation(): void {
 function navigateToLiaison(): void {
   router.push('/liaison-levain');
 }
+
 </script>
 
 <style scoped>

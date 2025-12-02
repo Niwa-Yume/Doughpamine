@@ -69,6 +69,8 @@ async function handleSubmit() {
   successMessage.value = '';
 
   try {
+    const now = new Date().toISOString();
+
     const { error } = await supabase
       .from('levains')
       .insert([
@@ -76,9 +78,9 @@ async function handleSubmit() {
           user_id: user.value.id,
           name: nomLevain.value,
           current_state_name: 'Actif',
-          last_fed_at: new Date().toISOString(),
+          last_fed_at: now,
           streak: 0,
-          created_at: new Date().toISOString(),
+          created_at: now,
         }
       ])
       .select();

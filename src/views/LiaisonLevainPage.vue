@@ -31,6 +31,7 @@
           <input
             type="datetime-local"
             class="form-input form-input-date"
+            placeholder="Date du dernier nourrissage de ton levain"
             v-model="dernierNourri"
             required
           >
@@ -104,7 +105,7 @@ async function handleSubmit() {
     } else if (hoursElapsed >= 12) {
       initialStatus = 'Actif'; // Entre 12h et 24h
     } else {
-      initialStatus = 'Actif/pret'; // Moins de 12h
+      initialStatus = 'Affame'; // Moins de 12h
     }
 
     // Créer le levain dans la base de données (table levains, pas doughs)

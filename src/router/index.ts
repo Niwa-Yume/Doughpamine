@@ -74,7 +74,6 @@ const router = createRouter({
 let sessionChecked = false;
 
 router.beforeEach(async (to, _from, next) => {
-  // Récupération session une seule fois
   if (!sessionChecked) {
     await supabase.auth.getSession();
     sessionChecked = true;
