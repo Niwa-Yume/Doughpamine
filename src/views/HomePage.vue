@@ -32,7 +32,7 @@
           </DoughTimer>
 
           <!-- Message d'information pour l'état "Jeune" -->
-          <div v-if="levain.current_state_name === 'Jeune'" class="home-page__info-message">
+          <div v-if="levain.current_state_name === 'Jeune'" class="home-page__info-message home-page__info-message--incubation">
             <p class="info-message__title">🌱 Période d'incubation</p>
             <p class="info-message__text">
               Votre levain est jeune et se développe ! Nourrissez-le quotidiennement pendant 6 jours pour qu'il devienne actif et prêt à faire du pain.
@@ -45,6 +45,14 @@
                 {{ daysUntilActive > 0 ? `${daysUntilActive} jour${daysUntilActive > 1 ? 's' : ''} restant${daysUntilActive > 1 ? 's' : ''}` : 'Presque prêt !' }}
               </p>
             </div>
+          </div>
+
+          <!-- Message d'information pour l'état "Mort" -->
+          <div v-if="levain.current_state_name === 'Mort'" class="home-page__info-message home-page__info-message--mort">
+            <p class="info-message__title">💀 Levain mort</p>
+            <p class="info-message__text">
+              Votre levain est mort, mais il n'est pas trop tard ! En le nourrissant, vous pourrez le relancer et il repassera par une phase d'incubation de 6 jours pour retrouver toute sa vitalité.
+            </p>
           </div>
 
           <h1 class="home-page__name">
@@ -454,6 +462,21 @@ watch(levain, (newLevain) => {
   box-shadow: 0 2px 8px rgba(76, 175, 80, 0.1);
   max-width: 90vw;
   width: 100%;
+}
+
+/* Variante pour l'état "Mort" */
+.home-page__info-message--mort {
+  background: linear-gradient(135deg, #ffebee 0%, #ffcdd2 100%);
+  border-left-color: #f44336;
+  box-shadow: 0 2px 8px rgba(244, 67, 54, 0.1);
+}
+
+.home-page__info-message--mort .info-message__title {
+  color: #c62828;
+}
+
+.home-page__info-message--mort .info-message__text {
+  color: #b71c1c;
 }
 
 .info-message__title {

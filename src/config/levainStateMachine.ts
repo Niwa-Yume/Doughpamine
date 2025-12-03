@@ -106,7 +106,9 @@ export const LEVAIN_STATE_MACHINE: LevainStateMachine = {
 
     mort: {
       label: 'Levain mort (irréversible)',
-      actions: {}
+      actions: {
+        nourrir: { to: 'jeune' } // Relancer le levain : retour à la phase d'incubation
+      }
     }
   }
 };
