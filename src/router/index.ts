@@ -66,7 +66,7 @@ const router = createRouter({
 
 let sessionChecked = false;
 
-router.beforeEach(async (to, _from, next) => {
+router.beforeEach(async (to, from, next) => {
   if (!sessionChecked) {
     await supabase.auth.getSession();
     sessionChecked = true;
@@ -74,12 +74,14 @@ router.beforeEach(async (to, _from, next) => {
   const { data } = await supabase.auth.getSession();
   const authed = !!data.session?.user;
 
+  // Si la route nécessite l'authentification et que l'utilisateur n'est pas connecté
   if (to.meta?.requiresAuth && !authed) {
     next({ path: '/auth', query: { redirect: to.fullPath } });
     return;
   }
+
+  // Si l'utilisateur est connecté et tente d'accéder à /auth
   if (['/auth','/login','/register','/signup'].includes(to.path) && authed) {
-    // Si query redirect existe, l'utiliser SAUF si c'est vers profile ou score
     const queryRedirect = to.query?.redirect as string;
 
     // Ignorer les redirections vers profile/score (proviennent souvent de déconnexions)
@@ -88,18 +90,18 @@ router.beforeEach(async (to, _from, next) => {
 
     console.log('🔍 Router: queryRedirect=', queryRedirect, 'shouldIgnoreRedirect=', shouldIgnoreRedirect);
 
+    // Si une redirection valide existe, l'utiliser
     if (queryRedirect && !shouldIgnoreRedirect) {
       console.log('✅ Router: Redirection vers', queryRedirect);
       next(queryRedirect);
       return;
     }
 
-    // Vérifier si l'utilisateur a un levain
+    // Vérifier si l'utilisateur a un levain pour déterminer où le rediriger
     if (data.session?.user?.id) {
       console.log('🔍 Router: Vérification levain pour user_id=', data.session.user.id);
 
       try {
-        // Prendre le levain le plus récent (order by created_at DESC + limit 1)
         const { data: levainList, error: levainError } = await supabase
           .from('levains')
           .select('id, user_id, name')
@@ -111,28 +113,58 @@ router.beforeEach(async (to, _from, next) => {
 
         console.log('🔍 Router: levainData=', levainData, 'error=', levainError);
 
-        // Si erreur de requête, on assume qu'il n'y a pas de levain (sécurité)
         if (levainError) {
           console.warn('⚠️ Router: Erreur lors de la vérification du levain:', levainError);
         }
 
+        // Rediriger vers /home si levain existe, sinon vers /create-dough
         const redirect = (levainData && !levainError) ? '/home' : '/create-dough';
         console.log('✅ Router: Redirection finale vers', redirect, 'hasLevain=', !!levainData);
         next(redirect);
         return;
       } catch (error) {
         console.error('❌ Router: Exception lors de la vérification du levain:', error);
-        // En cas d'erreur, rediriger vers create-dough par sécurité
         next('/create-dough');
         return;
       }
     }
 
     // Fallback si pas de session (ne devrait pas arriver)
-    console.log('⚠️ Router: Fallback vers /home (pas de session)');
-    next('/home');
+    console.log('⚠️ Router: Fallback vers /create-dough (pas de session valide)');
+    next('/create-dough');
     return;
   }
+
+  // Vérification supplémentaire : si l'utilisateur va sur /home, vérifier qu'il a un levain
+  if (to.path === '/home' && authed && data.session?.user?.id) {
+    // Ne vérifier que si on ne vient pas de /create-dough ou /creation-levain
+    // pour éviter les boucles de redirection
+    const comingFromCreation = from.path === '/create-dough' ||
+                               from.path === '/creation-levain' ||
+                               from.path === '/liaison-levain';
+
+    if (!comingFromCreation) {
+      try {
+        const { data: levainList, error: levainError } = await supabase
+          .from('levains')
+          .select('id')
+          .eq('user_id', data.session.user.id)
+          .limit(1);
+
+        const hasLevain = levainList && levainList.length > 0 && !levainError;
+
+        if (!hasLevain) {
+          console.log('⚠️ Router: Accès à /home sans levain, redirection vers /create-dough');
+          next('/create-dough');
+          return;
+        }
+      } catch (error) {
+        console.error('❌ Router: Erreur vérification levain pour /home:', error);
+        // En cas d'erreur, laisser passer (HomePage s'en chargera)
+      }
+    }
+  }
+
   next();
 });
 

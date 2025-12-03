@@ -93,19 +93,19 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, watch, onMounted } from 'vue'
 import { IonPage, IonContent, IonIcon } from '@ionic/vue'
 import { pencilOutline } from 'ionicons/icons'
-import { useRoute } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import NewButton from '@/components/NewButton.vue'
 import JotformAgent from '@/components/JotformAgent.vue'
 import DoughTimer from '@/components/DoughTimer.vue'
 import RenameLevainModal from '@/components/RenameLevainModal.vue'
 import { useDough } from '@/composables/useDough'
 import { STATE_DB_TO_MACHINE, LEVAIN_STATE_MACHINE, parseDelayHours } from '@/config/levainStateMachine'
-import router from "@/router";
 
 const route = useRoute()
+const router = useRouter()
 const isHomePage = computed(() => route.path === '/home')
 
 
@@ -283,6 +283,25 @@ function onVideoLoaded(event: Event): void {
   const video = event.target as HTMLVideoElement;
   //console.log('✅ VIDÉO CHARGÉE:', video.src);
 }
+
+/**
+ * Redirection automatique vers /create-dough si pas de levain
+ */
+onMounted(() => {
+  // Vérifier au chargement initial
+  if (!levain.value) {
+    console.log('⚠️ HomePage: Aucun levain trouvé au montage, redirection vers /create-dough');
+    router.push('/create-dough');
+  }
+});
+
+// Watcher pour surveiller si le levain disparaît (par exemple après suppression)
+watch(levain, (newLevain) => {
+  if (!newLevain && route.path === '/home') {
+    console.log('⚠️ HomePage: Levain supprimé, redirection vers /create-dough');
+    router.push('/create-dough');
+  }
+});
 </script>
 
 <style scoped>
