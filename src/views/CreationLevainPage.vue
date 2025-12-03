@@ -91,7 +91,8 @@ async function handleSubmit() {
     nomLevain.value = '';
 
     // Navigation Ionic qui vide la pile complètement
-    await ionRouter.navigate('/home', 'root', 'replace');
+    // Ajouter skipCheck pour éviter la vérification du levain dans le router
+    await ionRouter.navigate('/home?skipCheck=true', 'root', 'replace');
 
   } catch (e: any) {
     errorMessage.value = e.message || 'Erreur lors de la création du levain';

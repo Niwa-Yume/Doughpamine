@@ -74,76 +74,50 @@ router.beforeEach(async (to, from, next) => {
   const { data } = await supabase.auth.getSession();
   const authed = !!data.session?.user;
 
-  // Si la route nécessite l'authentification et que l'utilisateur n'est pas connecté
+  console.log('🔍 Router: Navigation vers', to.path, 'depuis', from.path);
+  console.log('🔍 Router: Session?', !!data.session, 'User?', !!data.session?.user, 'Authed?', authed);
+  if (data.session?.user) {
+    console.log('🔍 Router: User ID:', data.session.user.id, 'Email:', data.session.user.email);
+  }
+
+  // 1. Si la route nécessite l'authentification et que l'utilisateur n'est pas connecté
   if (to.meta?.requiresAuth && !authed) {
+    console.log('⚠️ Router: Route protégée, redirection vers /auth');
     next({ path: '/auth', query: { redirect: to.fullPath } });
     return;
   }
 
-  // Si l'utilisateur est connecté et tente d'accéder à /auth
+  // 2. Si l'utilisateur est connecté et tente d'accéder à /auth
+  //    => Le rediriger vers /home
   if (['/auth','/login','/register','/signup'].includes(to.path) && authed) {
     const queryRedirect = to.query?.redirect as string;
 
-    // Ignorer les redirections vers profile/score (proviennent souvent de déconnexions)
-    const shouldIgnoreRedirect = queryRedirect &&
-      (queryRedirect.includes('/profile') || queryRedirect.includes('/score'));
-
-    console.log('🔍 Router: queryRedirect=', queryRedirect, 'shouldIgnoreRedirect=', shouldIgnoreRedirect);
-
-    // Si une redirection valide existe, l'utiliser
-    if (queryRedirect && !shouldIgnoreRedirect) {
-      console.log('✅ Router: Redirection vers', queryRedirect);
+    // Si une redirection valide existe dans l'URL (et qu'elle n'est pas /auth elle-même)
+    if (queryRedirect && queryRedirect !== '/auth' && !queryRedirect.includes('/login')) {
+      console.log('✅ Router: Redirection vers query param:', queryRedirect);
       next(queryRedirect);
       return;
     }
 
-    // Vérifier si l'utilisateur a un levain pour déterminer où le rediriger
-    if (data.session?.user?.id) {
-      console.log('🔍 Router: Vérification levain pour user_id=', data.session.user.id);
-
-      try {
-        const { data: levainList, error: levainError } = await supabase
-          .from('levains')
-          .select('id, user_id, name')
-          .eq('user_id', data.session.user.id)
-          .order('created_at', { ascending: false })
-          .limit(1);
-
-        const levainData = levainList && levainList.length > 0 ? levainList[0] : null;
-
-        console.log('🔍 Router: levainData=', levainData, 'error=', levainError);
-
-        if (levainError) {
-          console.warn('⚠️ Router: Erreur lors de la vérification du levain:', levainError);
-        }
-
-        // Rediriger vers /home si levain existe, sinon vers /create-dough
-        const redirect = (levainData && !levainError) ? '/home' : '/create-dough';
-        console.log('✅ Router: Redirection finale vers', redirect, 'hasLevain=', !!levainData);
-        next(redirect);
-        return;
-      } catch (error) {
-        console.error('❌ Router: Exception lors de la vérification du levain:', error);
-        next('/create-dough');
-        return;
-      }
-    }
-
-    // Fallback si pas de session (ne devrait pas arriver)
-    console.log('⚠️ Router: Fallback vers /create-dough (pas de session valide)');
-    next('/create-dough');
+    // Sinon, toujours rediriger vers /home
+    // HomePage gérera la logique pour rediriger vers /create-dough si nécessaire
+    console.log('✅ Router: Utilisateur connecté depuis /auth, redirection vers /home');
+    next('/home');
     return;
   }
 
-  // Vérification supplémentaire : si l'utilisateur va sur /home, vérifier qu'il a un levain
+  // 3. Vérification supplémentaire : si l'utilisateur va sur /home, vérifier qu'il a un levain
   if (to.path === '/home' && authed && data.session?.user?.id) {
+    // Ne pas vérifier si skipCheck=true (venant de la création d'un levain)
+    const skipCheck = to.query?.skipCheck === 'true';
+
     // Ne vérifier que si on ne vient pas de /create-dough ou /creation-levain
     // pour éviter les boucles de redirection
     const comingFromCreation = from.path === '/create-dough' ||
                                from.path === '/creation-levain' ||
                                from.path === '/liaison-levain';
 
-    if (!comingFromCreation) {
+    if (!comingFromCreation && !skipCheck) {
       try {
         const { data: levainList, error: levainError } = await supabase
           .from('levains')
@@ -162,6 +136,8 @@ router.beforeEach(async (to, from, next) => {
         console.error('❌ Router: Erreur vérification levain pour /home:', error);
         // En cas d'erreur, laisser passer (HomePage s'en chargera)
       }
+    } else if (skipCheck) {
+      console.log('✅ Router: skipCheck=true, pas de vérification du levain');
     }
   }
 

@@ -288,6 +288,16 @@ function onVideoLoaded(event: Event): void {
  * Redirection automatique vers /create-dough si pas de levain
  */
 onMounted(() => {
+  // Ne pas vérifier si skipCheck=true (utilisateur vient de créer un levain)
+  const skipCheck = route.query?.skipCheck === 'true';
+
+  if (skipCheck) {
+    console.log('✅ HomePage: skipCheck=true, pas de vérification du levain au montage');
+    // Nettoyer le paramètre de l'URL pour ne pas le garder indéfiniment
+    router.replace({ path: '/home', query: {} });
+    return;
+  }
+
   // Vérifier au chargement initial
   if (!levain.value) {
     console.log('⚠️ HomePage: Aucun levain trouvé au montage, redirection vers /create-dough');
