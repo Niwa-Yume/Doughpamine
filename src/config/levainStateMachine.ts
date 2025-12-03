@@ -140,17 +140,14 @@ export function shouldAutoTransition(
   lastActionAt: Date,
   auFraisSince: Date | null
 ): { shouldTransition: boolean; nextState: string | null } {
-  console.log('🔎 shouldAutoTransition appelée:', { currentStateName, lastActionAt });
 
   const machineStateName = STATE_DB_TO_MACHINE[currentStateName];
   if (!machineStateName) {
-    console.log('❌ État machine non trouvé pour:', currentStateName);
     return { shouldTransition: false, nextState: null };
   }
 
   const state = LEVAIN_STATE_MACHINE.states[machineStateName];
   if (!state) {
-    console.log('❌ Configuration état non trouvée pour:', machineStateName);
     return { shouldTransition: false, nextState: null };
   }
 
@@ -177,13 +174,11 @@ export function shouldAutoTransition(
   // Transition "rien_faire"
   const rienFaireAction = state.actions.rien_faire;
   if (!rienFaireAction) {
-    console.log('❌ Pas d\'action rien_faire pour:', machineStateName);
     return { shouldTransition: false, nextState: null };
   }
 
   const delayHours = parseDelayHours(rienFaireAction.delay_h);
   if (!delayHours) {
-    console.log('❌ Délai invalide:', rienFaireAction.delay_h);
     return { shouldTransition: false, nextState: null };
   }
 
@@ -201,7 +196,6 @@ export function shouldAutoTransition(
     const nextMachineState = rienFaireAction.to;
     const nextDBState = STATE_MACHINE_TO_DB[nextMachineState];
 
-    console.log('✅ Transition requise vers:', nextDBState);
     return { shouldTransition: true, nextState: nextDBState };
   }
 

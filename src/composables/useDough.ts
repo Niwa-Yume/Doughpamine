@@ -299,10 +299,8 @@ export function useDough() {
       null // On n'a pas au_frais_since pour l'instant
     );
 
-    console.log('🔍 Résultat shouldAutoTransition:', { shouldTransition, nextState });
 
     if (shouldTransition && nextState) {
-      console.log(`🔄 Transition automatique: ${levain.value.current_state_name} → ${nextState}`);
 
       // Réinitialiser la streak si le levain devient Négligé ou Mort
       const shouldResetStreak = nextState === 'Neglige' || nextState === 'Mort';
@@ -312,7 +310,6 @@ export function useDough() {
 
       if (shouldResetStreak && levain.value.streak > 0) {
         updates.streak = 0;
-        console.log(`💔 Série perdue ! Réinitialisation de ${levain.value.streak} → 0`);
       }
 
       const { error: err } = await supabase
@@ -321,7 +318,6 @@ export function useDough() {
         .eq('id', levain.value.id);
 
       if (err) {
-        console.error('❌ Erreur transition auto:', err);
         return;
       }
 
@@ -330,7 +326,6 @@ export function useDough() {
         ...updates
       };
 
-      console.log('✅ Transition effectuée avec succès');
     } else {
       console.log('⏸️ Pas de transition nécessaire');
     }
