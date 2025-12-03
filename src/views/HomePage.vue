@@ -16,6 +16,7 @@
             :acceleratedMode="DEBUG_ACCELERATED_MODE"
             :maxDuration="timeUntilHungry"
             @timeExpired="handleTimerExpired"
+            @checkAutoTransition="updateStateBasedOnTime"
           >
             <video
               :key="currentVideo"
@@ -30,6 +31,21 @@
             ></video>
           </DoughTimer>
 
+          <!-- Message d'information pour l'état "Jeune" -->
+          <div v-if="levain.current_state_name === 'Jeune'" class="home-page__info-message">
+            <p class="info-message__title">🌱 Période d'incubation</p>
+            <p class="info-message__text">
+              Votre levain est jeune et se développe ! Nourrissez-le quotidiennement pendant 6 jours pour qu'il devienne actif et prêt à faire du pain.
+            </p>
+            <div class="info-message__progress">
+              <div class="progress-bar">
+                <div class="progress-bar__fill" :style="{ width: `${incubationProgress}%` }"></div>
+              </div>
+              <p class="progress-text">
+                {{ daysUntilActive > 0 ? `${daysUntilActive} jour${daysUntilActive > 1 ? 's' : ''} restant${daysUntilActive > 1 ? 's' : ''}` : 'Presque prêt !' }}
+              </p>
+            </div>
+          </div>
 
           <h1 class="home-page__name">
             {{ doughName }}
@@ -63,13 +79,6 @@
           @click="handleFeed"
           :disabled="!levain"
         />
-
-       <!-- Contrôles de test du timer
-        <TimerDebugControls
-          :lastFeedTime="computedLastFeedTime"
-          @updateTime="updateDebugTime"
-        />
-        -->
       </div>
 
       <!-- Modal de renommage -->
@@ -93,6 +102,7 @@ import JotformAgent from '@/components/JotformAgent.vue'
 import DoughTimer from '@/components/DoughTimer.vue'
 import RenameLevainModal from '@/components/RenameLevainModal.vue'
 import { useDough } from '@/composables/useDough'
+import { STATE_DB_TO_MACHINE, LEVAIN_STATE_MACHINE, parseDelayHours } from '@/config/levainStateMachine'
 import router from "@/router";
 
 const route = useRoute()
@@ -109,8 +119,8 @@ const STATE_TO_VIDEO: Record<string, string> = {
   'Affame': '/assets/video/levain-affame.mp4',
   'Au frais': '/assets/video/levain-congele.mp4',
   'Mort': '/assets/video/levain mort.mp4',
+  'Jeune': '/assets/video/levain oeuf.mp4',
 
-  // Fallback pour anciens noms AVEC accents (BDD pas encore migrée)
   'Actif/prêt': '/assets/video/levain nourri.mp4',
   'Négligé': '/assets/video/levain-neglige.mp4',
   'Affamé': '/assets/video/levain-affame.mp4',
@@ -121,7 +131,20 @@ const DEFAULT_VIDEO = '/assets/video/levain basique.mp4';
 const currentStreak = computed(() => levain.value?.streak ?? 0);
 
 // Récupère le levain courant (si connecté)
-const { levain, states, feedLevain, updateLevainState, timeUntilHungry } = useDough();
+const { levain, states, feedLevain, updateLevainState, updateStateBasedOnTime, timeUntilHungry } = useDough();
+
+// Calcule la durée maximale de l'état actuel (en heures)
+const maxDurationHours = computed(() => {
+  if (!levain.value?.current_state_name) return 24;
+
+  const machineState = STATE_DB_TO_MACHINE[levain.value.current_state_name];
+  const stateConfig = machineState ? LEVAIN_STATE_MACHINE.states[machineState] : null;
+  const rienFaireAction = stateConfig?.actions.rien_faire;
+
+  if (!rienFaireAction?.delay_h) return 24;
+
+  return parseDelayHours(rienFaireAction.delay_h) || 24;
+});
 
 // État du modal de renommage
 const isRenameModalOpen = ref(false);
@@ -157,6 +180,29 @@ const currentVideo = computed(() => {
 
 // Nom affiché (fallback "Roger")
 const doughName = computed(() => levain.value?.name || "Roger");
+
+// Progression de l'incubation pour l'état "Jeune" (0-100%)
+const incubationProgress = computed(() => {
+  if (!levain.value || levain.value.current_state_name !== 'Jeune') return 0;
+
+  const createdAt = new Date(levain.value.created_at).getTime();
+  const now = Date.now();
+  const elapsed = now - createdAt;
+  const total = 144 * 60 * 60 * 1000; // 6 jours en millisecondes
+
+  return Math.min(100, Math.max(0, (elapsed / total) * 100));
+});
+
+// Jours restants pour l'incubation
+const daysUntilActive = computed(() => {
+  if (!levain.value || levain.value.current_state_name !== 'Jeune') return 0;
+
+  const createdAt = new Date(levain.value.created_at).getTime();
+  const endTime = createdAt + (144 * 60 * 60 * 1000); // +6 jours
+  const remaining = endTime - Date.now();
+
+  return Math.max(0, Math.ceil(remaining / (24 * 60 * 60 * 1000)));
+});
 
 // États du levain disponibles (SOT: levain_states dans Supabase)
 const levainStates = computed(() => states.value);
@@ -208,11 +254,13 @@ function navigateToChat(): void {
 }
 
 /**
- * Gère l'expiration du timer (24h écoulées)
+ * Gère l'expiration du timer
  */
 function handleTimerExpired(): void {
-  console.warn('⚠️ Le levain n\'a pas été nourri depuis 24h !');
-  // TODO: actions supplémentaires (notification, etc.)
+  const duration = maxDurationHours.value;
+  console.warn(`⚠️ Le levain n'a pas été nourri depuis ${duration}h !`);
+  // Vérifier si une transition automatique est nécessaire
+  updateStateBasedOnTime();
 }
 
 /**
@@ -420,6 +468,60 @@ function onVideoLoaded(event: Event): void {
 
   .home-page__edit-name ion-icon {
     font-size: 20px;
+  }
+
+  .home-page__info-message {
+    background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%);
+    border-radius: var(--border-radius-md, 12px);
+    padding: var(--spacing-md, 16px);
+    margin: var(--spacing-md, 16px) 0;
+    border-left: 4px solid #4caf50;
+    box-shadow: 0 2px 8px rgba(76, 175, 80, 0.1);
+  }
+
+  .info-message__title {
+    font-family: var(--font-display, 'ADLaM Display', sans-serif);
+    font-size: var(--font-size-md, 18px);
+    font-weight: 600;
+    color: #2e7d32;
+    margin: 0 0 var(--spacing-xs, 8px) 0;
+  }
+
+  .info-message__text {
+    font-family: var(--font-body, system-ui, sans-serif);
+    font-size: var(--font-size-sm, 14px);
+    color: #1b5e20;
+    margin: 0;
+    line-height: 1.5;
+  }
+
+  .info-message__progress {
+    margin-top: var(--spacing-sm, 12px);
+  }
+
+  .progress-bar {
+    width: 100%;
+    height: 8px;
+    background-color: rgba(46, 125, 50, 0.2);
+    border-radius: 4px;
+    overflow: hidden;
+    margin-bottom: var(--spacing-xs, 8px);
+  }
+
+  .progress-bar__fill {
+    height: 100%;
+    background: linear-gradient(90deg, #66bb6a 0%, #4caf50 100%);
+    border-radius: 4px;
+    transition: width 0.3s ease;
+  }
+
+  .progress-text {
+    font-family: var(--font-body, system-ui, sans-serif);
+    font-size: var(--font-size-xs, 12px);
+    font-weight: 600;
+    color: #2e7d32;
+    margin: 0;
+    text-align: center;
   }
 
   .home-page__feed-button {

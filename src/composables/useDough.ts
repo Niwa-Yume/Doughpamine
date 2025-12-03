@@ -287,11 +287,19 @@ export function useDough() {
       ? new Date(levain.value.last_fed_at)
       : new Date(levain.value.created_at);
 
+    console.log('🕐 updateStateBasedOnTime:', {
+      currentState: levain.value.current_state_name,
+      lastActionAt,
+      now: new Date()
+    });
+
     const { shouldTransition, nextState } = shouldAutoTransition(
       levain.value.current_state_name,
       lastActionAt,
       null // On n'a pas au_frais_since pour l'instant
     );
+
+    console.log('🔍 Résultat shouldAutoTransition:', { shouldTransition, nextState });
 
     if (shouldTransition && nextState) {
       console.log(`🔄 Transition automatique: ${levain.value.current_state_name} → ${nextState}`);
@@ -321,6 +329,10 @@ export function useDough() {
         ...levain.value,
         ...updates
       };
+
+      console.log('✅ Transition effectuée avec succès');
+    } else {
+      console.log('⏸️ Pas de transition nécessaire');
     }
   }
 

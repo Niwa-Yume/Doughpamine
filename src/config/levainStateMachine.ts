@@ -1,3 +1,4 @@
+
 export interface StateAction {
   to: string;
   delay_h?: number | string; // Nombre d'heures ou "2-4" (range)
@@ -23,6 +24,7 @@ export interface LevainStateMachine {
 
 // Mapping noms BDD → noms dans l'app
 export const STATE_DB_TO_MACHINE: Record<string, string> = {
+  'Jeune': 'jeune',
   'Actif': 'actif',
   'Actif/pret': 'prêt',
   'Affame': 'affamé',
@@ -32,6 +34,7 @@ export const STATE_DB_TO_MACHINE: Record<string, string> = {
 };
 
 export const STATE_MACHINE_TO_DB: Record<string, string> = {
+  'jeune': 'Jeune',
   'actif': 'Actif',
   'prêt': 'Actif/pret',
   'affamé': 'Affame',
@@ -41,8 +44,17 @@ export const STATE_MACHINE_TO_DB: Record<string, string> = {
 };
 
 export const LEVAIN_STATE_MACHINE: LevainStateMachine = {
-  initial_state: 'actif',
+  initial_state: 'jeune', // État initial pour un levain créé from scratch
   states: {
+    jeune: {
+      label: 'Jeune levain en incubation',
+      max_delay_h: 168, // 7 jours maximum
+      actions: {
+        nourrir: { to: 'jeune' }, // Le levain reste jeune quand on le nourrit
+        rien_faire: { to: 'actif', delay_h: 144 } // Après 6 jours (144h), il devient actif automatiquement
+      }
+    },
+
     actif: {
       label: 'Levain actif',
       max_delay_h: 24,
@@ -57,7 +69,7 @@ export const LEVAIN_STATE_MACHINE: LevainStateMachine = {
       label: 'Levain prêt à l\'emploi',
       max_delay_h: 24,
       actions: {
-        rien_faire: { to: 'actif', delay_h: 4 },
+        rien_faire: { to: 'actif', delay_h: 0.5 },
         mettre_au_frais: { to: 'au_frais', max_h: 504 },
         nourrir: { to: 'prêt', delay_h: '2-4' }
       }
@@ -88,7 +100,7 @@ export const LEVAIN_STATE_MACHINE: LevainStateMachine = {
       max_delay_h: 504,
       actions: {
         sortir: { to: 'actif' },
-          rien_faire: { to: 'mort', delay_h: 504 },
+        rien_faire: { to: 'mort', delay_h: 504 }
       }
     },
 
@@ -126,13 +138,17 @@ export function shouldAutoTransition(
   lastActionAt: Date,
   auFraisSince: Date | null
 ): { shouldTransition: boolean; nextState: string | null } {
+  console.log('🔎 shouldAutoTransition appelée:', { currentStateName, lastActionAt });
+
   const machineStateName = STATE_DB_TO_MACHINE[currentStateName];
   if (!machineStateName) {
+    console.log('❌ État machine non trouvé pour:', currentStateName);
     return { shouldTransition: false, nextState: null };
   }
 
   const state = LEVAIN_STATE_MACHINE.states[machineStateName];
   if (!state) {
+    console.log('❌ Configuration état non trouvée pour:', machineStateName);
     return { shouldTransition: false, nextState: null };
   }
 
@@ -159,20 +175,31 @@ export function shouldAutoTransition(
   // Transition "rien_faire"
   const rienFaireAction = state.actions.rien_faire;
   if (!rienFaireAction) {
+    console.log('❌ Pas d\'action rien_faire pour:', machineStateName);
     return { shouldTransition: false, nextState: null };
   }
 
   const delayHours = parseDelayHours(rienFaireAction.delay_h);
   if (!delayHours) {
+    console.log('❌ Délai invalide:', rienFaireAction.delay_h);
     return { shouldTransition: false, nextState: null };
   }
 
   const hoursElapsed = (Date.now() - lastActionAt.getTime()) / (1000 * 60 * 60);
 
+  console.log('⏱️ Vérification délai:', {
+    machineStateName,
+    delayHours,
+    hoursElapsed,
+    shouldTransition: hoursElapsed >= delayHours,
+    nextState: rienFaireAction.to
+  });
+
   if (hoursElapsed >= delayHours) {
     const nextMachineState = rienFaireAction.to;
     const nextDBState = STATE_MACHINE_TO_DB[nextMachineState];
 
+    console.log('✅ Transition requise vers:', nextDBState);
     return { shouldTransition: true, nextState: nextDBState };
   }
 

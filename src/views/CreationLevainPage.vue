@@ -77,7 +77,7 @@ async function handleSubmit() {
         {
           user_id: user.value.id,
           name: nomLevain.value,
-          current_state_name: 'Actif',
+          current_state_name: 'Jeune', // Nouveau levain commence en incubation
           last_fed_at: now,
           streak: 0,
           created_at: now,

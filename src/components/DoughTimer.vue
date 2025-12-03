@@ -96,12 +96,14 @@ const props = withDefaults(defineProps<Props>(), {
 });
 
 const emit = defineEmits<{
-  timeExpired: []
+  timeExpired: [];
+  checkAutoTransition: [];
 }>();
 
 // État réactif
 const currentTime = ref(Date.now());
 let intervalId: ReturnType<typeof setInterval> | null = null;
+let hasExpired = false; // Flag pour émettre l'événement qu'une seule fois
 
 // Constantes pour le calcul du cercle SVG
 const center = computed(() => props.size / 2);
@@ -183,6 +185,16 @@ const currentColor = computed(() => {
  */
 const timeRemainingLabel = computed(() => {
   const totalMinutes = Math.floor(timeRemaining.value / (60 * 1000));
+  const totalHours = Math.floor(totalMinutes / 60);
+
+  // Si >= 48 heures, afficher en jours + heures
+  if (totalHours >= 48) {
+    const days = Math.floor(totalHours / 24);
+    const hours = totalHours % 24;
+    return hours > 0 ? `${days}j ${hours}h` : `${days}j`;
+  }
+
+  // Sinon conserver format heures / minutes
   const hours = Math.floor(totalMinutes / 60);
   const minutes = totalMinutes % 60;
 
@@ -192,6 +204,7 @@ const timeRemainingLabel = computed(() => {
   return `${minutes}m`;
 });
 
+
 /**
  * Met à jour le temps actuel toutes les secondes
  */
@@ -199,9 +212,14 @@ function startTimer() {
   intervalId = setInterval(() => {
     currentTime.value = Date.now();
 
-    // Émettre l'événement si le temps est écoulé
-    if (timeRemaining.value <= 0) {
+    // Émettre l'événement seulement la première fois que le timer expire
+    if (timeRemaining.value <= 0 && !hasExpired) {
+      hasExpired = true;
       emit('timeExpired');
+      emit('checkAutoTransition');
+    } else if (timeRemaining.value > 0) {
+      // Réinitialiser le flag si le timer redevient positif (levain nourri)
+      hasExpired = false;
     }
   }, 1000); // Mise à jour toutes les secondes
 }
