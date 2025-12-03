@@ -415,6 +415,63 @@ function onVideoLoaded(event: Event): void {
   z-index: 1;
 }
 
+/* Message d'information pour l'état "Jeune" */
+.home-page__info-message {
+  background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%);
+  border-radius: var(--border-radius-md, 12px);
+  padding: var(--spacing-md, 16px);
+  margin: var(--spacing-md, 16px) 0;
+  border-left: 4px solid #4caf50;
+  box-shadow: 0 2px 8px rgba(76, 175, 80, 0.1);
+  max-width: 90vw;
+  width: 100%;
+}
+
+.info-message__title {
+  font-family: var(--font-display, 'ADLaM Display', sans-serif);
+  font-size: var(--font-size-md, 18px);
+  font-weight: 600;
+  color: #2e7d32;
+  margin: 0 0 var(--spacing-xs, 8px) 0;
+}
+
+.info-message__text {
+  font-family: var(--font-body, system-ui, sans-serif);
+  font-size: var(--font-size-sm, 14px);
+  color: #1b5e20;
+  margin: 0;
+  line-height: 1.5;
+}
+
+.info-message__progress {
+  margin-top: var(--spacing-sm, 12px);
+}
+
+.progress-bar {
+  width: 100%;
+  height: 8px;
+  background-color: rgba(46, 125, 50, 0.2);
+  border-radius: 4px;
+  overflow: hidden;
+  margin-bottom: var(--spacing-xs, 8px);
+}
+
+.progress-bar__fill {
+  height: 100%;
+  background: linear-gradient(90deg, #66bb6a 0%, #4caf50 100%);
+  border-radius: 4px;
+  transition: width 0.3s ease;
+}
+
+.progress-text {
+  font-family: var(--font-body, system-ui, sans-serif);
+  font-size: var(--font-size-xs, 12px);
+  font-weight: 600;
+  color: #2e7d32;
+  margin: 0;
+  text-align: center;
+}
+
 /* ========================================
    RESPONSIVE - Tablet & Desktop
    ======================================== */
@@ -451,9 +508,8 @@ function onVideoLoaded(event: Event): void {
 @media (min-width: 1024px) {
   .home-page {
     gap: var(--spacing-3xl);
-    padding-top: var(--spacing-3xl);
     justify-content: space-evenly;
-
+    height: fit-content;
   }
 
   .home-page__dough-section {
@@ -471,57 +527,15 @@ function onVideoLoaded(event: Event): void {
   }
 
   .home-page__info-message {
-    background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%);
-    border-radius: var(--border-radius-md, 12px);
-    padding: var(--spacing-md, 16px);
-    margin: var(--spacing-md, 16px) 0;
-    border-left: 4px solid #4caf50;
-    box-shadow: 0 2px 8px rgba(76, 175, 80, 0.1);
+    max-width: 600px;
   }
 
   .info-message__title {
-    font-family: var(--font-display, 'ADLaM Display', sans-serif);
-    font-size: var(--font-size-md, 18px);
-    font-weight: 600;
-    color: #2e7d32;
-    margin: 0 0 var(--spacing-xs, 8px) 0;
+    font-size: var(--font-size-lg, 20px);
   }
 
   .info-message__text {
-    font-family: var(--font-body, system-ui, sans-serif);
-    font-size: var(--font-size-sm, 14px);
-    color: #1b5e20;
-    margin: 0;
-    line-height: 1.5;
-  }
-
-  .info-message__progress {
-    margin-top: var(--spacing-sm, 12px);
-  }
-
-  .progress-bar {
-    width: 100%;
-    height: 8px;
-    background-color: rgba(46, 125, 50, 0.2);
-    border-radius: 4px;
-    overflow: hidden;
-    margin-bottom: var(--spacing-xs, 8px);
-  }
-
-  .progress-bar__fill {
-    height: 100%;
-    background: linear-gradient(90deg, #66bb6a 0%, #4caf50 100%);
-    border-radius: 4px;
-    transition: width 0.3s ease;
-  }
-
-  .progress-text {
-    font-family: var(--font-body, system-ui, sans-serif);
-    font-size: var(--font-size-xs, 12px);
-    font-weight: 600;
-    color: #2e7d32;
-    margin: 0;
-    text-align: center;
+    font-size: var(--font-size-md, 16px);
   }
 
   .home-page__feed-button {
