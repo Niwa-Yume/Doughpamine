@@ -1,9 +1,8 @@
 <template>
   <div class="icon-list" role="navigation" aria-label="Raccourcis">
-    <!-- Icône Flamme (Streak) -->
-    <div class="icon-wrapper">
-      <img src="/assets/icon/flamme.png" alt="Flamme" class="icon" />
-      <span v-if="typeof streak === 'number'" class="icon-streak">{{ streak }}</span>
+    <!-- Composant Streak Display -->
+    <div class="icon-wrapper icon-wrapper--streak">
+      <StreakDisplay :streak="streak" />
     </div>
 
     <!-- Icône Profile avec menu déroulant -->
@@ -35,20 +34,16 @@
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted, computed, watch } from 'vue';
 import { useRouter } from 'vue-router';
+import StreakDisplay from './StreakDisplay.vue';
+import { useStreakStore } from '@/stores/streakStore';
 
 const router = useRouter();
 const isMenuOpen = ref(false);
 const profileMenuRef = ref<HTMLElement | null>(null);
-const props = defineProps<{ streak?: number }>();
 
-console.log('[IconList] streak prop =', props.streak);
-watch(
-  () => props.streak,
-  (newVal, oldVal) => console.log('[IconList] streak changed', { oldVal, newVal }),
-  { immediate: true }
-);
-
-const streak = computed(() => props.streak ?? 0);
+// Utiliser le store Pinia pour la streak
+const streakStore = useStreakStore();
+const streak = computed(() => streakStore.currentStreak);
 
 function toggleMenu(event: MouseEvent) {
   event.stopPropagation();
@@ -118,6 +113,11 @@ onUnmounted(() => {
   align-items: center;
   justify-content: center;
   gap: 8px;
+}
+
+.icon-wrapper--streak {
+  /* S'assurer que StreakDisplay s'affiche correctement */
+  flex-shrink: 0;
 }
 
 .icon {
@@ -221,20 +221,5 @@ onUnmounted(() => {
     opacity: 0;
     transform: translateY(-8px) scale(0.95);
   }
-}
-
-.icon-streak {
-  min-width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.9);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-family: var(--font-display, system-ui, sans-serif);
-  font-size: 18px;
-  font-weight: 600;
-  color: var(--color-text-dark, #4b4b4b);
-  border: 2px solid rgba(255, 107, 53, 0.3);
 }
 </style>

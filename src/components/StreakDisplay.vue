@@ -1,16 +1,30 @@
 <template>
   <div class="streak-display" :class="{ 'streak-display--animating': isAnimating }">
+    <!-- Icône flamme style Duolingo -->
     <svg
       class="streak-display__icon"
-      width="48"
-      height="48"
-      viewBox="0 0 96 96"
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
       xmlns="http://www.w3.org/2000/svg"
     >
+      <!-- Flamme avec dégradé orange -->
+      <defs>
+        <linearGradient id="flameGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%" style="stop-color:#FFA500;stop-opacity:1" />
+          <stop offset="100%" style="stop-color:#FF6B35;stop-opacity:1" />
+        </linearGradient>
+      </defs>
       <path
         class="streak-display__flame"
-        d="M56 12c8 16-4 20-4 28s8 12 8 20-8 16-16 16-16-8-16-18 8-14 8-22S24 20 32 8c8 8 16 12 24 4z"
-        fill="currentColor"
+        d="M12 2c2 4-1 5-1 7s2 3 2 5-2 4-4 4-4-2-4-4.5 2-3.5 2-5.5S7 5 8 2c2 2 4 3 6 1z"
+        fill="url(#flameGradient)"
+      />
+      <!-- Petite flamme intérieure jaune -->
+      <path
+        class="streak-display__inner-flame"
+        d="M12 8c1 2-0.5 2.5-0.5 3.5s1 1.5 1 2.5-1 2-2 2-2-1-2-2.25 1-1.75 1-2.75S10 8.5 10.5 7c1 1 1.5 1.5 2.5 0.5z"
+        fill="#FFD700"
       />
     </svg>
     <span class="streak-display__count">{{ streak }}</span>
@@ -63,54 +77,40 @@ function triggerAnimation() {
 .streak-display {
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 10px 20px;
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.95), rgba(255, 245, 235, 0.95));
-  border-radius: 28px;
-  box-shadow: 0 3px 12px rgba(0, 0, 0, 0.12);
-  border: 2px solid rgba(255, 107, 53, 0.2);
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  gap: 4px;
+  padding: 0;
+  background: transparent;
+  border-radius: 0;
+  box-shadow: none;
+  border: none;
+  transition: transform 0.3s ease;
 }
 
 .streak-display__icon {
   color: #FF6B35;
   transition: transform 0.3s ease;
   flex-shrink: 0;
+  width: 24px;
+  height: 24px;
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.2));
 }
 
 .streak-display__flame {
   transform-origin: center bottom;
 }
 
-.streak-display__content {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 2px;
-}
-
-.streak-display__label {
-  font-family: var(--font-display, system-ui, sans-serif);
-  font-size: 12px;
-  font-weight: 400;
-  color: #FF6B35;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  opacity: 0.8;
+.streak-display__inner-flame {
+  transform-origin: center bottom;
 }
 
 .streak-display__count {
   font-family: var(--font-display, system-ui, sans-serif);
-  font-size: 28px;
+  font-size: 14px;
   font-weight: 700;
-  color: #000!important;
+  color: #FF6B35;
   line-height: 1;
-  min-width: 32px;
+  min-width: auto;
   text-align: center;
-  opacity: 1 !important;
-  visibility: visible !important;
-  z-index: 999 !important;
-  background: yellow; /* Debug: fond jaune */
 }
 
 /* Animation quand la streak augmente */
@@ -133,18 +133,12 @@ function triggerAnimation() {
 @keyframes streakPulse {
   0% {
     transform: scale(1);
-    box-shadow: 0 3px 12px rgba(0, 0, 0, 0.12);
-    border-color: rgba(255, 107, 53, 0.2);
   }
   50% {
     transform: scale(1.15);
-    box-shadow: 0 6px 24px rgba(255, 107, 53, 0.5);
-    border-color: rgba(255, 107, 53, 0.6);
   }
   100% {
     transform: scale(1);
-    box-shadow: 0 3px 12px rgba(0, 0, 0, 0.12);
-    border-color: rgba(255, 107, 53, 0.2);
   }
 }
 
@@ -153,13 +147,13 @@ function triggerAnimation() {
     transform: scale(1) rotate(0deg);
   }
   25% {
-    transform: scale(1.2) rotate(-8deg);
+    transform: scale(1.2) rotate(-5deg);
   }
   50% {
-    transform: scale(1.3) rotate(8deg);
+    transform: scale(1.25) rotate(5deg);
   }
   75% {
-    transform: scale(1.2) rotate(-5deg);
+    transform: scale(1.2) rotate(-3deg);
   }
 }
 
@@ -168,7 +162,7 @@ function triggerAnimation() {
     transform: scale(1);
   }
   50% {
-    transform: scale(1.4);
+    transform: scale(1.3);
   }
   100% {
     transform: scale(1);
@@ -180,22 +174,22 @@ function triggerAnimation() {
     transform: scale(1);
   }
   30% {
-    transform: scale(1.5);
+    transform: scale(1.4);
   }
   50% {
-    transform: scale(0.9);
+    transform: scale(0.95);
   }
   70% {
-    transform: scale(1.15);
+    transform: scale(1.1);
   }
   100% {
     transform: scale(1);
   }
 }
 
-/* Effet de lueur pour la flamme */
+/* Effet de lueur pour la flamme lors de l'animation */
 .streak-display--animating .streak-display__flame {
-  filter: drop-shadow(0 0 12px rgba(255, 107, 53, 0.9));
+  filter: drop-shadow(0 0 8px rgba(255, 165, 0, 0.8));
 }
 
 /* Animation subtile de la flamme en continu */
@@ -203,12 +197,27 @@ function triggerAnimation() {
   animation: flameIdle 2s ease-in-out infinite;
 }
 
+.streak-display__inner-flame {
+  animation: innerFlameIdle 1.5s ease-in-out infinite;
+}
+
 @keyframes flameIdle {
   0%, 100% {
     transform: scale(1) translateY(0);
   }
   50% {
-    transform: scale(1.05) translateY(-2px);
+    transform: scale(1.05) translateY(-1px);
+  }
+}
+
+@keyframes innerFlameIdle {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.8;
+    transform: scale(1.1);
   }
 }
 </style>

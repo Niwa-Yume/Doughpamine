@@ -19,8 +19,12 @@ import '@ionic/vue/css/flex-utils.css';
 import '@ionic/vue/css/display.css';
 
 import './theme/global.css';
+import {createPinia} from "pinia";
+
+const pinia = createPinia()
 
 const app = createApp(App)
+  .use(pinia)
   .use(IonicVue)
   .use(router);
 

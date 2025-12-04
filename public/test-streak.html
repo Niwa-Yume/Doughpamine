@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Test Streak Store</title>
+  <style>
+    body {
+      font-family: system-ui, sans-serif;
+      max-width: 600px;
+      margin: 50px auto;
+      padding: 20px;
+      background: #f5f5f5;
+    }
+    .card {
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      margin-bottom: 20px;
+    }
+    button {
+      background: #FF6B35;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 4px;
+      cursor: pointer;
+      margin: 5px;
+      font-size: 14px;
+    }
+    button:hover {
+      background: #ff5520;
+    }
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+    .stat {
+      text-align: center;
+      padding: 15px;
+      background: #f8f9fa;
+      border-radius: 4px;
+    }
+    .stat-value {
+      font-size: 32px;
+      font-weight: bold;
+      color: #FF6B35;
+    }
+    .stat-label {
+      font-size: 12px;
+      color: #666;
+      margin-top: 5px;
+    }
+    .info {
+      padding: 10px;
+      background: #e3f2fd;
+      border-radius: 4px;
+      margin-bottom: 10px;
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>🔥 Test Streak System</h1>
+    <p>Ce fichier teste le système de streak en local storage.</p>
+  </div>
+
+  <div class="card">
+    <h2>📊 Statistiques</h2>
+    <div class="stats">
+      <div class="stat">
+        <div class="stat-value" id="currentStreak">0</div>
+        <div class="stat-label">Streak Actuelle</div>
+      </div>
+      <div class="stat">
+        <div class="stat-value" id="bestStreak">0</div>
+        <div class="stat-label">Meilleur Streak</div>
+      </div>
+      <div class="stat">
+        <div class="stat-value" id="daysSinceFeed">-</div>
+        <div class="stat-label">Jours depuis dernier feed</div>
+      </div>
+    </div>
+    <div class="info" id="lastFeedDate">Dernière date : Jamais</div>
+  </div>
+
+  <div class="card">
+    <h2>🎮 Actions</h2>
+    <button onclick="simulateFeed()">🍞 Nourrir (aujourd'hui)</button>
+    <button onclick="simulateFeedYesterday()">📅 Nourrir (hier)</button>
+    <button onclick="simulateFeedTwoDaysAgo()">📅 Nourrir (il y a 2 jours)</button>
+    <br>
+    <button onclick="checkExpiry()">🔍 Vérifier expiration</button>
+    <button onclick="resetStreak()">🔄 Reset Streak</button>
+    <button onclick="resetAll()">❌ Reset Tout</button>
+    <button onclick="clearLocalStorage()">🗑️ Clear localStorage</button>
+  </div>
+
+  <div class="card">
+    <h2>💾 LocalStorage</h2>
+    <pre id="localStorage" style="background: #f8f9fa; padding: 10px; border-radius: 4px; overflow-x: auto;"></pre>
+  </div>
+
+  <script>
+    const STORAGE_KEY = 'doughpamine_streak';
+
+    function getStreakData() {
+      const stored = localStorage.getItem(STORAGE_KEY);
+      return stored ? JSON.parse(stored) : { currentStreak: 0, lastFeedDate: null, bestStreak: 0 };
+    }
+
+    function saveStreakData(data) {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+      updateDisplay();
+    }
+
+    function updateDisplay() {
+      const data = getStreakData();
+      document.getElementById('currentStreak').textContent = data.currentStreak;
+      document.getElementById('bestStreak').textContent = data.bestStreak;
+      document.getElementById('localStorage').textContent = JSON.stringify(data, null, 2);
+
+      if (data.lastFeedDate) {
+        const lastDate = new Date(data.lastFeedDate);
+        const today = new Date();
+        const diffTime = today - lastDate;
+        const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+
+        document.getElementById('lastFeedDate').textContent = `Dernière date : ${data.lastFeedDate}`;
+        document.getElementById('daysSinceFeed').textContent = diffDays;
+      } else {
+        document.getElementById('lastFeedDate').textContent = 'Dernière date : Jamais';
+        document.getElementById('daysSinceFeed').textContent = '-';
+      }
+    }
+
+    function simulateFeed() {
+      const data = getStreakData();
+      const today = new Date().toISOString().split('T')[0];
+
+      if (!data.lastFeedDate) {
+        data.currentStreak = 1;
+        data.lastFeedDate = today;
+      } else {
+        const lastDate = new Date(data.lastFeedDate);
+        const lastDay = lastDate.toISOString().split('T')[0];
+
+        if (lastDay === today) {
+          alert('Déjà nourri aujourd\'hui !');
+          return;
+        }
+
+        const now = new Date();
+        const diffTime = now.getTime() - lastDate.getTime();
+        const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+
+        if (diffDays === 1) {
+          data.currentStreak++;
+        } else if (diffDays > 1) {
+          data.currentStreak = 1;
+        }
+
+        data.lastFeedDate = today;
+      }
+
+      if (data.currentStreak > data.bestStreak) {
+        data.bestStreak = data.currentStreak;
+      }
+
+      saveStreakData(data);
+      alert(`Nourri ! Streak: ${data.currentStreak}`);
+    }
+
+    function simulateFeedYesterday() {
+      const data = getStreakData();
+      const yesterday = new Date();
+      yesterday.setDate(yesterday.getDate() - 1);
+      data.lastFeedDate = yesterday.toISOString().split('T')[0];
+      data.currentStreak = 5; // Simulate a streak
+      data.bestStreak = Math.max(data.bestStreak, data.currentStreak);
+      saveStreakData(data);
+      alert('Simulé : nourri hier');
+    }
+
+    function simulateFeedTwoDaysAgo() {
+      const data = getStreakData();
+      const twoDaysAgo = new Date();
+      twoDaysAgo.setDate(twoDaysAgo.getDate() - 2);
+      data.lastFeedDate = twoDaysAgo.toISOString().split('T')[0];
+      data.currentStreak = 3;
+      data.bestStreak = Math.max(data.bestStreak, data.currentStreak);
+      saveStreakData(data);
+      alert('Simulé : nourri il y a 2 jours');
+    }
+
+    function checkExpiry() {
+      const data = getStreakData();
+
+      if (!data.lastFeedDate) {
+        alert('Pas de dernière date de nourrissage');
+        return;
+      }
+
+      const now = new Date();
+      const lastDate = new Date(data.lastFeedDate);
+      const diffTime = now.getTime() - lastDate.getTime();
+      const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+
+      if (diffDays > 1) {
+        data.currentStreak = 0;
+        saveStreakData(data);
+        alert('Streak expirée et réinitialisée !');
+      } else {
+        alert(`Streak toujours valide (${diffDays} jours depuis dernier feed)`);
+      }
+    }
+
+    function resetStreak() {
+      const data = getStreakData();
+      data.currentStreak = 0;
+      data.lastFeedDate = null;
+      saveStreakData(data);
+      alert('Streak réinitialisée');
+    }
+
+    function resetAll() {
+      saveStreakData({ currentStreak: 0, lastFeedDate: null, bestStreak: 0 });
+      alert('Tout réinitialisé');
+    }
+
+    function clearLocalStorage() {
+      localStorage.removeItem(STORAGE_KEY);
+      updateDisplay();
+      alert('localStorage nettoyé');
+    }
+
+    // Initial display
+    updateDisplay();
+  </script>
+</body>
+</html>
+

@@ -89,19 +89,6 @@ export function useDough() {
     async function feedLevain() {
         if (!levain.value) return
 
-        const lastFed = levain.value.last_fed_at ? new Date(levain.value.last_fed_at) : null;
-        const today = new Date();
-
-        const isFirstFeedToday = !lastFed || (
-            lastFed.getFullYear() !== today.getFullYear() ||
-            lastFed.getMonth() !== today.getMonth() ||
-            lastFed.getDate() !== today.getDate()
-        );
-
-        const nextStreak = isFirstFeedToday
-            ? (levain.value.streak ?? 0) + 1
-            : levain.value.streak;
-
         const currentStateMachine = STATE_DB_TO_MACHINE[levain.value.current_state_name];
         const stateConfig = currentStateMachine ? LEVAIN_STATE_MACHINE.states[currentStateMachine] : null;
 
@@ -121,8 +108,7 @@ export function useDough() {
             .from('levains')
             .update({
                 last_fed_at: nextLastFed,
-                current_state_name: nextState,
-                streak: nextStreak
+                current_state_name: nextState
             })
             .eq('id', levain.value.id)
 
@@ -132,8 +118,7 @@ export function useDough() {
         levain.value = {
             ...levain.value,
             last_fed_at: nextLastFed,
-            current_state_name: nextState,
-            streak: nextStreak
+            current_state_name: nextState
         }
     }
 
@@ -302,19 +287,11 @@ export function useDough() {
 
     if (shouldTransition && nextState) {
 
-      // Réinitialiser la streak si le levain devient Négligé ou Mort
-      const shouldResetStreak = nextState === 'Neglige' || nextState === 'Mort';
-      const updates: any = {
-        current_state_name: nextState
-      };
-
-      if (shouldResetStreak && levain.value.streak > 0) {
-        updates.streak = 0;
-      }
-
       const { error: err } = await supabase
         .from('levains')
-        .update(updates)
+        .update({
+          current_state_name: nextState
+        })
         .eq('id', levain.value.id);
 
       if (err) {
@@ -323,7 +300,7 @@ export function useDough() {
 
       levain.value = {
         ...levain.value,
-        ...updates
+        current_state_name: nextState
       };
 
     } else {

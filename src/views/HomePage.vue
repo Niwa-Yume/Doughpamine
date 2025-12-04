@@ -4,6 +4,9 @@
       <!-- Widget AI Jotform via composant dédié - Uniquement visible sur /home -->
       <JotformAgent v-if="isHomePage"  />
 
+      <!-- Liste d'icônes (streak + profile) -->
+      <IconListComponent v-if="levain" />
+
       <div class="home-page app-container">
 
         <div class="home-page__dough-section" v-if="levain">
@@ -30,6 +33,7 @@
               @loadeddata="onVideoLoaded"
             ></video>
           </DoughTimer>
+
 
           <!-- Message d'information pour l'état "Jeune" -->
           <div v-if="levain.current_state_name === 'Jeune'" class="home-page__info-message home-page__info-message--incubation">
@@ -108,13 +112,18 @@ import { useRoute, useRouter } from 'vue-router'
 import NewButton from '@/components/NewButton.vue'
 import JotformAgent from '@/components/JotformAgent.vue'
 import DoughTimer from '@/components/DoughTimer.vue'
+import IconListComponent from '@/components/IconListComponent.vue'
 import RenameLevainModal from '@/components/RenameLevainModal.vue'
 import { useDough } from '@/composables/useDough'
+import { useStreakStore } from '@/stores/streakStore'
 import { STATE_DB_TO_MACHINE, LEVAIN_STATE_MACHINE, parseDelayHours } from '@/config/levainStateMachine'
 
 const route = useRoute()
 const router = useRouter()
 const isHomePage = computed(() => route.path === '/home')
+
+// Store de streak
+const streakStore = useStreakStore()
 
 
 // Mapping des états vers les vidéos
@@ -136,7 +145,6 @@ const STATE_TO_VIDEO: Record<string, string> = {
 
 // Vidéo par défaut si l'état n'est pas reconnu
 const DEFAULT_VIDEO = '/assets/video/levain basique.mp4';
-const currentStreak = computed(() => levain.value?.streak ?? 0);
 
 // Récupère le levain courant (si connecté)
 const { levain, states, feedLevain, updateLevainState, updateStateBasedOnTime, timeUntilHungry } = useDough();
@@ -252,6 +260,9 @@ async function handleFeed(): Promise<void> {
   }
   console.log('✅ Appel de feedLevain()');
   await feedLevain();
+
+  // Mettre à jour la streak
+  streakStore.updateStreakOnFeed();
 }
 
 /**
@@ -305,6 +316,9 @@ onMounted(() => {
     router.replace({ path: '/home', query: {} });
     return;
   }
+
+  // Vérifier si la streak doit expirer
+  streakStore.checkStreakExpiry();
 });
 
 // Watcher pour surveiller si le levain disparaît (par exemple après suppression)
@@ -359,6 +373,7 @@ watch(levain, (newLevain) => {
   z-index: 1;
   margin-top: var(--spacing-md, 16px);
 }
+
 
 /* Ajustement pour petits mobiles */
 @media (max-width: 375px) {
