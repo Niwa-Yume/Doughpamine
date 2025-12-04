@@ -64,7 +64,6 @@ import { IonPage, IonContent } from '@ionic/vue';
 import { computed, ref } from 'vue';
 import { useRouter } from 'vue-router';
 
-// Imports SVG colorés
 import iconBread from '@/../public/assets/SVG/badges/bread-colored.svg';
 import iconFire from '@/../public/assets/SVG/badges/fire-colored.svg';
 import iconTrophy from '@/../public/assets/SVG/badges/trophy-colored.svg';

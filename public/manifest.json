@@ -1,22 +1,28 @@
 {
-  "name": "Doughpamine App",
-  "short_name": "Doughpamine",
+  "name": "DoughPamine - Suivi de Levain",
+  "short_name": "DoughPamine",
+  "description": "Application de suivi et de gamification pour votre levain naturel",
   "start_url": "/",
+  "scope": "/",
   "display": "standalone",
-  "background_color": "#f2e5cb",
-  "theme_color": "#f2e5cb",
-  "theme_text_color": "#7B5E3B",
-  "description": "Une application pour suivre vos levains.",
+  "orientation": "portrait-primary",
+  "background_color": "#F2E5CA",
+  "theme_color": "#955934",
   "icons": [
     {
-      "src": "/assets/icons/icon-192x192.png",
-      "sizes": "192x192",
-      "type": "image/png"
+      "src": "/assets/logo.png",
+      "sizes": "any",
+      "type": "image/png",
+      "purpose": "any maskable"
     },
     {
-      "src": "/assets/icons/icon-512x512.png",
+      "src": "/assets/mascott/Version de base.png",
       "sizes": "512x512",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any"
     }
-  ]
+  ],
+  "categories": ["food", "lifestyle", "productivity"],
+  "lang": "fr-FR",
+  "dir": "ltr"
 }
