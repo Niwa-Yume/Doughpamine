@@ -125,6 +125,12 @@ router.beforeEach(async (to, from, next) => {
           .eq('user_id', data.session.user.id)
           .limit(1);
 
+          // --- AJOUT DE LOGS ---
+          console.log('🔍 DEBUG LEVAIN CHECK:');
+          console.log('👉 User ID cherché :', data.session.user.id);
+          console.log('👉 Erreur Supabase :', levainError);
+          console.log('👉 Liste trouvée :', levainList);
+
         const hasLevain = levainList && levainList.length > 0 && !levainError;
 
         if (!hasLevain) {

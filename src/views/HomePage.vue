@@ -305,12 +305,6 @@ onMounted(() => {
     router.replace({ path: '/home', query: {} });
     return;
   }
-
-  // Vérifier au chargement initial
-  if (!levain.value) {
-    console.log('⚠️ HomePage: Aucun levain trouvé au montage, redirection vers /create-dough');
-    router.push('/create-dough');
-  }
 });
 
 // Watcher pour surveiller si le levain disparaît (par exemple après suppression)
