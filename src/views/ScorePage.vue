@@ -30,7 +30,13 @@
           <section id="badges" class="badges-section">
             <h2 class="badges-title">Badges et succès :</h2>
             <div class="badges-grid">
-              <div class="badge-item" v-for="(badge, idx) in badges" :key="idx">
+              <div
+                class="badge-item"
+                v-for="(badge, idx) in badges"
+                :key="idx"
+                :data-unlocked="badge.unlocked"
+                :style="{ '--badge-color': badge.color, '--badge-shadow': badge.color + '40' }"
+              >
                 <div class="badge-icon-wrapper">
                   <img :src="badge.icon" :alt="badge.name + ' icon'" class="badge-icon" />
                 </div>
@@ -58,16 +64,13 @@ import { IonPage, IonContent } from '@ionic/vue';
 import { computed, ref } from 'vue';
 import { useRouter } from 'vue-router';
 
-// Imports SVG (Vite gère public mais import explicite fiabilise la résolution)
-import iconTrophy from '@/../public/assets/SVG/badges/trophy.svg';
-import iconStar from '@/../public/assets/SVG/badges/star.svg';
-import iconBread from '@/../public/assets/SVG/badges/bread.svg';
-import iconPizza from '@/../public/assets/SVG/badges/pizza.svg';
-import iconWheat from '@/../public/assets/SVG/badges/wheat.svg';
-import iconFire from '@/../public/assets/SVG/badges/fire.svg';
-import iconHeart from '@/../public/assets/SVG/badges/heart.svg';
-import iconWater from '@/../public/assets/SVG/badges/water.svg';
-import iconClock from '@/../public/assets/SVG/badges/clock.svg';
+// Imports SVG colorés
+import iconBread from '@/../public/assets/SVG/badges/bread-colored.svg';
+import iconFire from '@/../public/assets/SVG/badges/fire-colored.svg';
+import iconTrophy from '@/../public/assets/SVG/badges/trophy-colored.svg';
+import iconStar from '@/../public/assets/SVG/badges/star-colored.svg';
+import iconBolt from '@/../public/assets/SVG/badges/bolt-colored.svg';
+import iconWheat from '@/../public/assets/SVG/badges/wheat-colored.svg';
 import {useAuth} from "@/composables/useAuth";
 
 const router = useRouter();
@@ -82,14 +85,14 @@ const progressWidth = computed(() => `${Math.min(100, Math.round((currentXp.valu
 // Assets locaux
 const mascotte = '/assets/mascott/Version de base.png';
 
-// Badges avec icônes importées
+// Badges avec icônes importées - 6 badges essentiels
 const badges = ref([
-  { name: 'Trophée', icon: iconTrophy },
-  { name: 'Étoile', icon: iconStar },
-  { name: 'Pain', icon: iconBread },
-  { name: 'Pizza', icon: iconPizza },
-  { name: 'Blé', icon: iconWheat },
-  { name: 'Feu', icon: iconFire },
+  { name: 'Premier Pain', icon: iconBread, color: '#FFB84D', unlocked: true },
+  { name: 'Série de Feu', icon: iconFire, color: '#FF6B35', unlocked: true },
+  { name: 'Maître Boulanger', icon: iconTrophy, color: '#FFD700', unlocked: false },
+  { name: 'Étoile Montante', icon: iconStar, color: '#FFC107', unlocked: true },
+  { name: 'Éclair Rapide', icon: iconBolt, color: '#4CAF50', unlocked: false },
+  { name: 'Expert Levain', icon: iconWheat, color: '#8BC34A', unlocked: false },
 ]);
 
 const { user, signOut } = useAuth();
@@ -283,13 +286,88 @@ async function deleteAccount() {
   margin: 0 0 8px 0;
 }
 
-.badges-grid { display: flex; flex-wrap: wrap; justify-content: space-between; row-gap: 10px; }
+.badges-grid {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  row-gap: 16px;
+  column-gap: 8px;
+}
 
-.badge-item { display: flex; flex-direction: column; align-items: center; width: 30%; }
+.badge-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 30%;
+  transition: transform 0.3s ease;
+}
 
-.badge-icon-wrapper { width: 60px; height: 60px; display: flex; justify-content: center; align-items: center; position: relative; }
+.badge-item:hover {
+  transform: translateY(-4px);
+}
 
-.badge-icon { max-width: 100%; max-height: 100%; object-fit: contain; color: var(--couleurs-icones); }
+.badge-icon-wrapper {
+  width: 70px;
+  height: 70px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.7));
+  border-radius: 50%;
+  border: 3px solid #e0e0e0;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  transition: all 0.3s ease;
+}
+
+/* Badge débloqué - bordure colorée */
+.badge-item[data-unlocked="true"] .badge-icon-wrapper {
+  border-color: var(--badge-color);
+  box-shadow: 0 6px 16px var(--badge-shadow);
+  background: linear-gradient(135deg, rgba(255, 255, 255, 1), rgba(255, 255, 255, 0.8));
+}
+
+/* Badge verrouillé - gris et désaturé */
+.badge-item[data-unlocked="false"] .badge-icon-wrapper {
+  background: linear-gradient(135deg, #e0e0e0, #cccccc);
+  border-color: #999;
+  opacity: 0.6;
+}
+
+.badge-icon {
+  max-width: 50%;
+  max-height: 50%;
+  object-fit: contain;
+  transition: all 0.3s ease;
+}
+
+/* Icône colorée pour les badges débloqués */
+.badge-item[data-unlocked="true"] .badge-icon {
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
+}
+
+/* Icône grise pour les badges verrouillés */
+.badge-item[data-unlocked="false"] .badge-icon {
+  filter: grayscale(100%) brightness(0.8);
+}
+
+/* Cadenas pour les badges verrouillés */
+.badge-item[data-unlocked="false"] .badge-icon-wrapper::after {
+  content: '🔒';
+  position: absolute;
+  bottom: -4px;
+  right: -4px;
+  font-size: 20px;
+  background: white;
+  border-radius: 50%;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid #999;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
 
 .badge-name {
   margin-top: 6px;

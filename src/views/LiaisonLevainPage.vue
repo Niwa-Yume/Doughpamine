@@ -108,7 +108,18 @@ async function handleSubmit() {
       initialStatus = 'Affame'; // Moins de 12h
     }
 
-    // Créer le levain dans la base de données (table levains, pas doughs)
+    // 🔥 ÉTAPE 1 : Supprimer tous les anciens levains de cet utilisateur
+    const { error: deleteError } = await supabase
+      .from('levains')
+      .delete()
+      .eq('user_id', user.value.id);
+
+    if (deleteError) {
+      console.warn('⚠️ Erreur lors de la suppression des anciens levains:', deleteError);
+      // On continue quand même pour créer le nouveau levain
+    }
+
+    // 🔥 ÉTAPE 2 : Créer le levain dans la base de données
     const { error } = await supabase
       .from('levains')
       .insert([
@@ -117,7 +128,6 @@ async function handleSubmit() {
           name: nomLevain.value,
           current_state_name: initialStatus,
           last_fed_at: lastFedDate,
-          streak: 0,
           created_at: new Date().toISOString()
         }
       ])

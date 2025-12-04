@@ -71,6 +71,18 @@ async function handleSubmit() {
   try {
     const now = new Date().toISOString();
 
+    // 🔥 ÉTAPE 1 : Supprimer tous les anciens levains de cet utilisateur
+    const { error: deleteError } = await supabase
+      .from('levains')
+      .delete()
+      .eq('user_id', user.value.id);
+
+    if (deleteError) {
+      console.warn('⚠️ Erreur lors de la suppression des anciens levains:', deleteError);
+      // On continue quand même pour créer le nouveau levain
+    }
+
+    // 🔥 ÉTAPE 2 : Créer le nouveau levain
     const { error } = await supabase
       .from('levains')
       .insert([
