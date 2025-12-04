@@ -321,11 +321,28 @@ watch(levain, (newLevain) => {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: var(--spacing-xl);
-  padding-top: var(--spacing-lg);
-  padding-bottom: var(--spacing-2xl);
+  gap: var(--spacing-md, 12px);
+  padding: var(--spacing-sm, 8px) var(--spacing-md, 16px) var(--spacing-lg, 24px);
   position: relative;
-  min-height: 844px;
+  min-height: 100vh;
+  min-height: 100dvh; /* Dynamic viewport height pour mobile */
+  justify-content: flex-start;
+  overflow-y: auto;
+}
+
+/* Media queries pour petits mobiles (iPhone SE, 12 mini, etc.) */
+@media (max-width: 375px) {
+  .home-page {
+    gap: var(--spacing-sm, 8px);
+    padding: var(--spacing-xs, 4px) var(--spacing-sm, 8px) var(--spacing-md, 16px);
+  }
+}
+
+@media (max-height: 700px) {
+  .home-page {
+    gap: var(--spacing-sm, 8px);
+    padding: var(--spacing-xs, 4px) var(--spacing-sm, 8px) var(--spacing-md, 16px);
+  }
 }
 
 .home-page__empty {
@@ -338,9 +355,24 @@ watch(levain, (newLevain) => {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: var(--spacing-lg);
+  gap: var(--spacing-md, 12px);
   z-index: 1;
-  margin-top: var(--spacing-4xl);
+  margin-top: var(--spacing-md, 16px);
+}
+
+/* Ajustement pour petits mobiles */
+@media (max-width: 375px) {
+  .home-page__dough-section {
+    gap: var(--spacing-sm, 8px);
+    margin-top: var(--spacing-sm, 8px);
+  }
+}
+
+@media (max-height: 700px) {
+  .home-page__dough-section {
+    gap: var(--spacing-sm, 8px);
+    margin-top: var(--spacing-sm, 8px);
+  }
 }
 
 .home-page__dough-image {
@@ -370,12 +402,19 @@ watch(levain, (newLevain) => {
 /* Nouveau: nom du levain */
 .home-page__name {
   font-family: var(--font-display, system-ui, sans-serif);
-  font-size: var(--font-size-3xl);
+  font-size: var(--font-size-2xl, 24px);
   font-weight: 400;
   color: var(--color-text-primary);
   letter-spacing: -0.73px;
   margin: 0;
   text-align: center;
+}
+
+/* Ajustement pour écrans plus grands */
+@media (min-width: 390px) {
+  .home-page__name {
+    font-size: var(--font-size-3xl);
+  }
 }
 
 .home-page__edit-name {
@@ -450,12 +489,19 @@ watch(levain, (newLevain) => {
 .home-page__info-message {
   background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%);
   border-radius: var(--border-radius-md, 12px);
-  padding: var(--spacing-md, 16px);
-  margin: var(--spacing-md, 16px) 0;
+  padding: var(--spacing-sm, 12px);
+  margin: var(--spacing-sm, 12px) 0;
   border-left: 4px solid #4caf50;
   box-shadow: 0 2px 8px rgba(76, 175, 80, 0.1);
   max-width: 90vw;
   width: 100%;
+}
+
+@media (min-width: 390px) {
+  .home-page__info-message {
+    padding: var(--spacing-md, 16px);
+    margin: var(--spacing-md, 16px) 0;
+  }
 }
 
 /* Variante pour l'état "Mort" */
