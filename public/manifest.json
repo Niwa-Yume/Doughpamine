@@ -32,14 +32,14 @@
   "screenshots": [
     {
       "src": "/assets/screen-shot-mobile.png",
-      "sizes": "716×1550",
+      "sizes": "716x1550",
       "type": "image/png",
       "form_factor": "narrow",
       "label": "DoughPamine sur mobile"
     },
     {
       "src": "/assets/screen-shot-desktop.png",
-      "sizes": "3012×1724",
+      "sizes": "3012x1724",
       "type": "image/png",
       "form_factor": "wide",
       "label": "DoughPamine sur bureau"
