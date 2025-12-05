@@ -2,6 +2,17 @@
   <ion-page>
     <ion-content class="ion-padding">
       <div class="chat-container">
+        <!-- Header avec flèche de retour -->
+        <header class="chat-header">
+          <div class="header-top">
+            <a href="#" class="back-arrow" aria-label="Retour" @click.prevent="goBack">
+              <img src="/assets/SVG/back-arrow.svg" alt="Retour" />
+            </a>
+          </div>
+          <h1 class="page-title">Chat AI</h1>
+        </header>
+
+        <!-- iFrame Jotform -->
         <iframe
           id="JotFormIFrame-0199e1dd7911760488869a65943eb2dbbd18"
           title="Doughpamine AI"
@@ -17,8 +28,15 @@
 <script setup lang="ts">
 import { IonPage, IonContent } from '@ionic/vue';
 import { onMounted, nextTick } from 'vue';
+import { useRouter } from 'vue-router';
+
+const router = useRouter();
+
+// Fonction de retour
+const goBack = () => router.back();
 
 onMounted(() => {
+  // ...existing code...
   const scriptId = 'jotform-embed-handler';
   const iframeId = 'JotFormIFrame-0199e1dd7911760488869a65943eb2dbbd18';
   const selector = `iframe[id='${iframeId}']`;
@@ -69,8 +87,59 @@ onMounted(() => {
 </script>
 
 <style scoped>
-/* Hauteur par défaut, adaptable selon vos besoins */
-.chat-container { width: 100%; background: transparent; }
+/* Container principal */
+.chat-container {
+  width: 100%;
+  background: transparent;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* Header avec flèche de retour */
+.chat-header {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px 0;
+}
+
+.header-top {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+}
+
+.back-arrow {
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+.back-arrow:hover {
+  transform: translateX(-4px);
+}
+
+.back-arrow img {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.page-title {
+  color: var(--title-color, #000);
+  font-family: var(--font-display, system-ui, sans-serif);
+  font-weight: 400;
+  font-size: 38px;
+  line-height: 1.1;
+  text-align: center;
+  margin: 6px 0 0 0;
+  letter-spacing: -0.88px;
+}
 
 /* Sécurité supplémentaire: réinitialise aussi les variables sur l'élément iframe */
 #JotFormIFrame-0199e1dd7911760488869a65943eb2dbbd18 {
@@ -80,6 +149,12 @@ onMounted(() => {
 
 /* Optionnel: sur petits écrans on peut réduire la hauteur fixe */
 @media (max-width: 420px) {
-  #JotFormIFrame-0199e1dd7911760488869a65943eb2dbbd18 { height: 560px !important; }
+  #JotFormIFrame-0199e1dd7911760488869a65943eb2dbbd18 {
+    height: 560px !important;
+  }
+
+  .page-title {
+    font-size: 32px;
+  }
 }
 </style>

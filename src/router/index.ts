@@ -42,7 +42,7 @@ const routes: Array<RouteRecordRaw> = [
     path: '/chat',
     name: 'Chat',
     component: ChatPage,
-    meta: { title: 'Chat AI', requiresAuth: true }
+    meta: { title: 'Chat', requiresAuth: true }
   },
   {
     path: '/score',
