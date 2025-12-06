@@ -77,7 +77,7 @@
             aria-label="Sélection de l'état du levain"
           >
             <option v-for="opt in levainStates" :key="opt.name" :value="opt.name">
-              {{ opt.name }}
+              {{ getStateDisplayName(opt.name) }}
             </option>
           </select>
         </div>
@@ -116,7 +116,7 @@ import IconListComponent from '@/components/IconListComponent.vue'
 import RenameLevainModal from '@/components/RenameLevainModal.vue'
 import { useDough } from '@/composables/useDough'
 import { useStreakStore } from '@/stores/streakStore'
-import { STATE_DB_TO_MACHINE, LEVAIN_STATE_MACHINE, parseDelayHours } from '@/config/levainStateMachine'
+import { STATE_DB_TO_MACHINE, LEVAIN_STATE_MACHINE, parseDelayHours, getStateDisplayName } from '@/config/levainStateMachine'
 
 const route = useRoute()
 const router = useRouter()

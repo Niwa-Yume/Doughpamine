@@ -24,24 +24,36 @@ export interface LevainStateMachine {
 
 // Mapping noms BDD → noms dans l'app
 export const STATE_DB_TO_MACHINE: Record<string, string> = {
-  'Jeune': 'jeune',
-  'Actif': 'actif',
-  'Actif/pret': 'prêt',
-  'Affame': 'affamé',
-  'Neglige': 'négligé',
-  'Au frais': 'au_frais',
-  'Mort': 'mort'
+    'Jeune': 'jeune',
+    'Actif': 'actif',
+    'Actif/pret': 'prêt',
+    'Affame': 'affamé',
+    'Neglige': 'négligé',
+    'Au frais': 'au_frais',
+    'Mort': 'mort'
 };
 
 export const STATE_MACHINE_TO_DB: Record<string, string> = {
-  'jeune': 'Jeune',
-  'actif': 'Actif',
-  'prêt': 'Actif/pret',
-  'affamé': 'Affame',
-  'négligé': 'Neglige',
-  'au_frais': 'Au frais',
-  'mort': 'Mort'
+    'jeune': 'Jeune',
+    'actif': 'Actif',
+    'prêt': 'Actif/pret',
+    'affamé': 'Affame',
+    'négligé': 'Neglige',
+    'au_frais': 'Au frais',
+    'mort': 'Mort'
 };
+
+// Mapping pour l'affichage avec accents UTF-8
+export const STATE_DISPLAY_NAMES: Record<string, string> = {
+    'Jeune': 'Jeune',
+    'Actif': 'Actif',
+    'Actif/pret': 'Actif/prêt',
+    'Affame': 'Affamé',
+    'Neglige': 'Négligé',
+    'Au frais': 'Au frais',
+    'Mort': 'Mort'
+};
+
 
 export const LEVAIN_STATE_MACHINE: LevainStateMachine = {
   initial_state: 'jeune', // État initial pour un levain créé from scratch
@@ -112,6 +124,25 @@ export const LEVAIN_STATE_MACHINE: LevainStateMachine = {
     }
   }
 };
+
+/**
+ * Récupère le label d'affichage complet avec les accents UTF-8 corrects
+ */
+export function getStateLabel(dbStateName: string): string {
+  const machineStateName = STATE_DB_TO_MACHINE[dbStateName];
+  if (!machineStateName) return dbStateName;
+
+  const state = LEVAIN_STATE_MACHINE.states[machineStateName];
+  return state?.label || dbStateName;
+}
+
+/**
+ * Récupère le nom court de l'état avec les accents UTF-8 corrects
+ * Ex: "Affame" → "Affamé", "Neglige" → "Négligé"
+ */
+export function getStateDisplayName(dbStateName: string): string {
+  return STATE_DISPLAY_NAMES[dbStateName] || dbStateName;
+}
 
 /**
  * Calcule le délai en heures (gère "2-4" → retourne la moyenne)
