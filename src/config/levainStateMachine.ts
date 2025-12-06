@@ -54,6 +54,52 @@ export const STATE_DISPLAY_NAMES: Record<string, string> = {
     'Mort': 'Mort'
 };
 
+// Descriptions détaillées pour les notifications toast
+export const STATE_DESCRIPTIONS: Record<string, { emoji: string; title: string; description: string; tips?: string }> = {
+    'Jeune': {
+        emoji: '🌱',
+        title: 'Bébé levain en incubation',
+        description: 'Votre petit levain développe ses levures et bactéries. Nourrissez-le chaque jour pendant 6 jours pour qu\'il devienne fort et actif !',
+        tips: 'Gardez-le au chaud (20-25°C) et couvrez-le avec un torchon'
+    },
+    'Actif': {
+        emoji: '✨',
+        title: 'Levain en pleine forme',
+        description: 'Bravo ! Votre levain bulle et se développe parfaitement. Dans 2 à 4h après le prochain nourrissage, il sera prêt pour faire du pain.',
+        tips: 'C\'est le moment parfait pour le nourrir si vous voulez cuisiner bientôt'
+    },
+    'Actif/pret': {
+        emoji: '🍞',
+        title: 'Prêt à faire du pain !',
+        description: 'Parfait ! Votre levain a atteint son pic d\'activité. C\'est maintenant qu\'il est le plus fort pour faire lever votre pâte.',
+        tips: 'Utilisez-le dans les 2-3 prochaines heures pour un résultat optimal'
+    },
+    'Affame': {
+        emoji: '😋',
+        title: 'Petit creux...',
+        description: 'Votre levain commence à avoir faim. Ses réserves de nourriture diminuent. Pensez à le nourrir dans les prochaines heures.',
+        tips: 'Un bon nourrissage maintenant le remettra en pleine forme'
+    },
+    'Neglige': {
+        emoji: '😰',
+        title: 'SOS : Levain en danger !',
+        description: 'Attention ! Votre levain manque de nourriture depuis trop longtemps. Il s\'affaiblit rapidement mais il est encore temps de le sauver.',
+        tips: 'Nourrissez-le MAINTENANT pour éviter qu\'il ne meure'
+    },
+    'Au frais': {
+        emoji: '❄️',
+        title: 'Mode hibernation',
+        description: 'Votre levain fait une pause au réfrigérateur. Il peut rester au frais jusqu\'à 3 semaines sans être nourri.',
+        tips: 'Sortez-le 2h à l\'avance et nourrissez-le avant de l\'utiliser'
+    },
+    'Mort': {
+        emoji: '💀',
+        title: 'Oh non...',
+        description: 'Votre levain est mort par manque de nourriture. Mais ne vous inquiétez pas ! Vous pouvez le relancer en le nourrissant.',
+        tips: 'Après le nourrissage, il repassera par une phase de croissance de 6 jours'
+    }
+};
+
 
 export const LEVAIN_STATE_MACHINE: LevainStateMachine = {
   initial_state: 'jeune', // État initial pour un levain créé from scratch
@@ -142,6 +188,18 @@ export function getStateLabel(dbStateName: string): string {
  */
 export function getStateDisplayName(dbStateName: string): string {
   return STATE_DISPLAY_NAMES[dbStateName] || dbStateName;
+}
+
+/**
+ * Récupère la description complète d'un état pour les toasts
+ */
+export function getStateDescription(dbStateName: string) {
+  return STATE_DESCRIPTIONS[dbStateName] || {
+    emoji: 'ℹ️',
+    title: dbStateName,
+    description: 'État du levain',
+    tips: undefined
+  };
 }
 
 /**

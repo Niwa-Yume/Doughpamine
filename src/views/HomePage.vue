@@ -59,16 +59,18 @@
             </p>
           </div>
 
-          <h1 class="home-page__name">
-            {{ doughName }}
+          <div class="home-page__name-container">
+            <h1 class="home-page__name">{{ doughName }}</h1>
             <button
               class="home-page__edit-name"
               @click="openRenameModal"
               aria-label="Renommer le levain"
+              title="Renommer le levain"
             >
               <ion-icon :icon="pencilOutline"></ion-icon>
+              <span class="edit-name__label">Renommer</span>
             </button>
-          </h1>
+          </div>
 
           <!-- Sélecteur d'état du levain -->
           <select
@@ -354,7 +356,7 @@ watch(levain, (newLevain) => {
 
 @media (max-height: 700px) {
   .home-page {
-    gap: var(--spacing-sm, 8px);
+    gap: 30px;
     padding: var(--spacing-xs, 4px) var(--spacing-sm, 8px) var(--spacing-md, 16px);
   }
 }
@@ -383,9 +385,9 @@ watch(levain, (newLevain) => {
   }
 }
 
-@media (max-height: 700px) {
+@media (max-height: 670px) {
   .home-page__dough-section {
-    gap: var(--spacing-sm, 8px);
+    gap: 30px;
     margin-top: var(--spacing-sm, 8px);
   }
 }
@@ -399,19 +401,14 @@ watch(levain, (newLevain) => {
   border-radius: 50%;
 }
 
-/* Wrapper du nom + bouton d'édition */
-.home-page__name-wrapper {
+/* Container pour le nom + bouton d'édition */
+.home-page__name-container {
   display: flex;
   align-items: center;
-  gap: var(--spacing-sm, 8px);
-  position: relative;
-  padding: var(--spacing-sm, 8px);
-  border-radius: var(--border-radius-lg, 15px);
-  transition: background-color var(--transition-fast, 120ms ease);
-}
-
-.home-page__name-wrapper:hover {
-  background-color: rgba(255, 255, 255, 0.3);
+  justify-content: center;
+  gap: var(--spacing-sm, 12px);
+  width: 100%;
+  max-width: 90vw;
 }
 
 /* Nouveau: nom du levain */
@@ -423,6 +420,8 @@ watch(levain, (newLevain) => {
   letter-spacing: -0.73px;
   margin: 0;
   text-align: center;
+  flex-shrink: 1;
+  min-width: 0;
 }
 
 /* Ajustement pour écrans plus grands */
@@ -435,34 +434,55 @@ watch(levain, (newLevain) => {
 .home-page__edit-name {
   background: var(--pure-white, #FFFFFF);
   border: 2px solid var(--color-border, #000);
-  border-radius: 50%;
+  border-radius: var(--border-radius-md, 8px);
   cursor: pointer;
-  padding: 2px;
-  width: 28px;
-  height: 28px;
+  padding: 6px 12px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  gap: 6px;
   color: var(--marron, #955934);
-  box-shadow: var(--shadow-sm, 1px 2px 0 0 rgba(0, 0, 0, 0.85));
+  box-shadow: var(--shadow-sm, 2px 3px 0 0 rgba(0, 0, 0, 0.85));
   transition: all var(--transition-fast, 120ms ease);
   flex-shrink: 0;
+  font-family: var(--font-body, system-ui, sans-serif);
+  font-size: 13px;
+  font-weight: 600;
+  white-space: nowrap;
 }
 
 .home-page__edit-name ion-icon {
-  font-size: 16px;
+  font-size: 18px;
+  flex-shrink: 0;
+}
+
+.edit-name__label {
+  display: inline-block;
+  line-height: 1;
+}
+
+/* Masquer le texte sur très petits écrans */
+@media (max-width: 360px) {
+  .edit-name__label {
+    display: none;
+  }
+
+  .home-page__edit-name {
+    padding: 8px;
+    border-radius: 50%;
+  }
 }
 
 .home-page__edit-name:hover {
   background-color: var(--marron, #955934);
   color: var(--pure-white, #FFFFFF);
   transform: translateY(-2px);
-  box-shadow: 1px 4px 0 0 rgba(0, 0, 0, 0.85);
+  box-shadow: 2px 5px 0 0 rgba(0, 0, 0, 0.85);
 }
 
 .home-page__edit-name:active {
   transform: translateY(1px);
-  box-shadow: 0 1px 0 0 rgba(0, 0, 0, 0.85);
+  box-shadow: 1px 2px 0 0 rgba(0, 0, 0, 0.85);
 }
 
 /* Nouveau: select du statut */
@@ -624,13 +644,16 @@ watch(levain, (newLevain) => {
   }
 
   .home-page__edit-name {
-    width: 36px;
-    height: 36px;
-    padding: 4px;
+    padding: 8px 16px;
+    font-size: 14px;
   }
 
   .home-page__edit-name ion-icon {
     font-size: 20px;
+  }
+
+  .edit-name__label {
+    display: inline-block;
   }
 
   .home-page__info-message {

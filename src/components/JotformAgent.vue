@@ -51,7 +51,7 @@ export default defineComponent({
       el.style.setProperty('margin', '0', 'important')
       el.style.setProperty('width', 'fit-content', 'important')
       el.style.setProperty('height', 'fit-content', 'important')
-      el.style.setProperty('z-index', '9999', 'important')
+      el.style.setProperty('z-index', '1000', 'important') // Sous les toasts (z-index: 60000)
       el.style.setProperty('transform', `scale(${props.scale})`, 'important')
       el.style.setProperty('transform-origin', 'top left', 'important')
     }
@@ -71,7 +71,7 @@ export default defineComponent({
       const iframe = root.querySelector('iframe') as HTMLElement | null
       if (iframe) {
         iframe.style.setProperty('pointer-events', 'auto', 'important')
-        iframe.style.setProperty('z-index', '2147483647', 'important')
+        iframe.style.setProperty('z-index', '1001', 'important') // Juste au-dessus de l'avatar mais sous les toasts
       }
 
       return true

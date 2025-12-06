@@ -1,11 +1,14 @@
 import { ref, computed, watchEffect } from 'vue'
 import { supabase } from '@/lib/supabaseClient'
 import { useAuth } from '@/composables/useAuth'
+import { useToast } from '@/composables/useToast'
 import {
     shouldAutoTransition,
     STATE_DB_TO_MACHINE,
     STATE_MACHINE_TO_DB,
-    LEVAIN_STATE_MACHINE, parseDelayHours
+    LEVAIN_STATE_MACHINE,
+    parseDelayHours,
+    getStateDescription
 } from '@/config/levainStateMachine'
 
 export interface LevainState {
@@ -37,6 +40,7 @@ function nowISO() { return new Date().toISOString() }
 
 export function useDough() {
   const { user, isAuthenticated } = useAuth()
+  const { showStateChangeToast } = useToast()
 
   async function fetchLevain() {
     if (!isAuthenticated.value || !user.value?.id) {
@@ -93,6 +97,7 @@ export function useDough() {
         const stateConfig = currentStateMachine ? LEVAIN_STATE_MACHINE.states[currentStateMachine] : null;
 
         const nextLastFed = nowISO();
+        const previousState = levain.value.current_state_name;
         let nextState = levain.value.current_state_name;
 
         if (stateConfig?.actions.nourrir) {
@@ -120,11 +125,24 @@ export function useDough() {
             last_fed_at: nextLastFed,
             current_state_name: nextState
         }
+
+        // Afficher le toast si l'état a changé après le nourrissage
+        if (previousState !== nextState) {
+            const stateInfo = getStateDescription(nextState);
+            await showStateChangeToast(
+                stateInfo.emoji,
+                stateInfo.title,
+                stateInfo.description,
+                stateInfo.tips
+            );
+        }
     }
 
 
     async function updateLevainState(stateName: string) {
     if (!levain.value) return
+
+    const previousState = levain.value.current_state_name;
 
     // Quand on change manuellement l'état, on met à jour last_fed_at
     // pour éviter les transitions automatiques immédiates
@@ -144,6 +162,17 @@ export function useDough() {
       ...levain.value,
       current_state_name: stateName,
       last_fed_at: now
+    }
+
+    // Afficher le toast seulement si l'état a changé
+    if (previousState !== stateName) {
+      const stateInfo = getStateDescription(stateName);
+      await showStateChangeToast(
+        stateInfo.emoji,
+        stateInfo.title,
+        stateInfo.description,
+        stateInfo.tips
+      );
     }
   }
 
