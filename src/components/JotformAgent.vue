@@ -1,6 +1,6 @@
 <template>
   <div v-if="isHomePage" class="jotform-header-container">
-    <div class="icon-wrapper-area">
+    <div v-if="showLocalIcon" class="icon-wrapper-area">
       <IconListComponent />
     </div>
     <div ref="anchor" class="jotform-agent-anchor" aria-hidden="true" />
@@ -29,6 +29,8 @@ export default defineComponent({
     const route = useRoute()
     const isHomePage = computed(() => route.path === '/home')
     const scriptRef = ref<HTMLScriptElement | null>(null)
+    const showLocalIcon = ref(true)
+
     let domObserver: MutationObserver | null = null
     let isAgentActive = false
 
@@ -58,6 +60,10 @@ export default defineComponent({
 
     const applyStyles = () => {
       const root = document.getElementById(`JotformAgent-${props.agentId}`) as HTMLElement | null
+
+      // Masquer le composant local si le widget externe est présent
+      showLocalIcon.value = !root
+
       if (!root) return false
 
       root.style.setProperty('pointer-events', 'none', 'important')
@@ -79,7 +85,11 @@ export default defineComponent({
 
     const loadAgentScript = () => {
       const existingRoot = document.getElementById(`JotformAgent-${props.agentId}`)
-      if (existingRoot) return true
+      if (existingRoot) {
+        // Si déjà injecté, masquer le local
+        showLocalIcon.value = false
+        return true
+      }
 
       if (scriptRef.value) return false
 
@@ -98,6 +108,8 @@ export default defineComponent({
         scriptRef.value.remove()
         scriptRef.value = null
       }
+      // Si le widget disparaît, réafficher le composant local
+      showLocalIcon.value = true
     }
 
     // Gestion du resize pour recalculer la position
@@ -140,7 +152,10 @@ export default defineComponent({
     )
 
     onMounted(() => {
-      // ensure anchor exists before script injection
+      // Vérifier si le widget est déjà présent pour éviter l'affichage double
+      const alreadyRoot = document.getElementById(`JotformAgent-${props.agentId}`)
+      showLocalIcon.value = !alreadyRoot
+
       if (isHomePage.value) startAgent()
     })
 
@@ -149,7 +164,7 @@ export default defineComponent({
       stopAgent()
     })
 
-    return { anchor, isHomePage }
+    return { anchor, isHomePage, showLocalIcon }
   }
 })
 </script>

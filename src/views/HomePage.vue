@@ -392,6 +392,18 @@ watch(levain, (newLevain) => {
   }
 }
 
+/* Ajustement spécifique pour iPhone SE et petits mobiles (375x667) */
+@media (max-width: 375px) and (max-height: 670px) {
+  .home-page__dough-section {
+    gap: var(--spacing-lg, 16px);
+    margin-bottom: var(--spacing-md, 12px);
+  }
+
+  .home-page {
+    gap: var(--spacing-lg, 20px);
+  }
+}
+
 .home-page__dough-image {
   width: 100%;
   height: 100%;

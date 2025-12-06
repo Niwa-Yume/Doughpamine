@@ -56,7 +56,9 @@ function handleGoogleSignIn(): void {
   flex-direction: column;
   align-items: center;
   justify-content: flex-start;
-  padding-bottom: var(--spacing-xl);
+  padding: var(--spacing-md) var(--spacing-md) var(--spacing-xl);
+  min-height: 100vh;
+  overflow-y: auto;
 }
 
 .auth-page__description {
@@ -72,11 +74,13 @@ function handleGoogleSignIn(): void {
 }
 
 .auth-page__mascot {
-  height: 372px;
-  width: auto;
-  max-width: 100%;
+  height: auto;
+  width: 100%;
+  max-width: 280px;
+  max-height: 300px;
   object-fit: contain;
-  margin-top: var(--spacing-xl);
+  margin-top: var(--spacing-lg);
+  flex-shrink: 1;
 }
 
 .auth-page__google-button {
@@ -90,11 +94,12 @@ function handleGoogleSignIn(): void {
   height: var(--button-height-md);
   width: 100%;
   max-width: 294px;
-  margin-top: var(--spacing-2xl);
+  margin-top: var(--spacing-xl);
   padding: var(--spacing-xs) var(--spacing-md);
   cursor: pointer;
   border: none;
   transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+  flex-shrink: 0;
 }
 
 .auth-page__google-button:hover {
@@ -119,6 +124,64 @@ function handleGoogleSignIn(): void {
 }
 
 /* ========================================
+   RESPONSIVE - Très petits mobiles (iPhone SE, etc.)
+   ======================================== */
+@media (max-height: 670px) {
+  .auth-page {
+    padding: var(--spacing-sm) var(--spacing-md) var(--spacing-lg);
+    justify-content: center;
+  }
+
+  .auth-page__mascot {
+    max-height: 220px;
+    max-width: 240px;
+    margin-top: var(--spacing-sm);
+  }
+
+  .auth-page__google-button {
+    margin-top: var(--spacing-md);
+    height: 56px;
+  }
+
+  .auth-page__google-logo {
+    width: 40px;
+    height: 40px;
+  }
+
+  .auth-page__google-text {
+    font-size: var(--font-size-base);
+  }
+}
+
+/* Ajustement pour iPhone SE en mode paysage */
+@media (max-height: 450px) {
+  .auth-page {
+    padding: var(--spacing-xs) var(--spacing-md);
+  }
+
+  .page-title {
+    font-size: var(--font-size-xl);
+    margin-top: var(--spacing-xs);
+  }
+
+  .auth-page__description {
+    font-size: var(--font-size-sm);
+    margin-top: var(--spacing-xs);
+  }
+
+  .auth-page__mascot {
+    max-height: 150px;
+    max-width: 200px;
+    margin-top: var(--spacing-xs);
+  }
+
+  .auth-page__google-button {
+    height: 48px;
+    margin-top: var(--spacing-sm);
+  }
+}
+
+/* ========================================
    RESPONSIVE - Tablet & Desktop
    ======================================== */
 @media (min-width: 768px) {
@@ -133,7 +196,8 @@ function handleGoogleSignIn(): void {
   }
 
   .auth-page__mascot {
-    height: 450px;
+    max-height: 450px;
+    max-width: 450px;
     margin-top: var(--spacing-2xl);
   }
 
@@ -164,7 +228,7 @@ function handleGoogleSignIn(): void {
   }
 
   .auth-page__mascot {
-    height: 380px;
+    max-height: 380px;
     margin-top: var(--spacing-xl);
   }
 
