@@ -43,7 +43,7 @@ export const STATE_MACHINE_TO_DB: Record<string, string> = {
     'mort': 'Mort'
 };
 
-// Mapping pour l'affichage avec accents UTF-8
+// Mapping de l'affichage aec accents UTF-8
 export const STATE_DISPLAY_NAMES: Record<string, string> = {
     'Jeune': 'Jeune',
     'Actif': 'Actif',
@@ -54,7 +54,7 @@ export const STATE_DISPLAY_NAMES: Record<string, string> = {
     'Mort': 'Mort'
 };
 
-// Descriptions détaillées pour les notifications toast
+// les notifs toast
 export const STATE_DESCRIPTIONS: Record<string, { emoji: string; title: string; description: string; tips?: string }> = {
     'Jeune': {
         emoji: '🌱',
