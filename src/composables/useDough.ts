@@ -3,6 +3,7 @@ import { supabase } from '@/lib/supabaseClient'
 import { useAuth } from '@/composables/useAuth'
 import { useToast } from '@/composables/useToast'
 import { useStreakStore } from '@/stores/streakStore'
+import { useNotifications } from '@/composables/useNotifications'
 import {
     shouldAutoTransition,
     STATE_DB_TO_MACHINE,
@@ -42,6 +43,7 @@ function nowISO() { return new Date().toISOString() }
 export function useDough() {
   const { user, isAuthenticated } = useAuth()
   const { showStateChangeToast } = useToast()
+  const { scheduleNextFeedingReminder } = useNotifications()
 
   async function fetchLevain() {
     if (!isAuthenticated.value || !user.value?.id) {
@@ -141,6 +143,13 @@ export function useDough() {
             current_state_name: nextState,
             streak: streakStore.currentStreak
         }
+
+        // ✅ 5. Planifier la prochaine notification de rappel
+        await scheduleNextFeedingReminder(
+            levain.value.name,
+            nextState,
+            nextLastFed
+        )
 
         // Afficher le toast si l'état a changé après le nourrissage
         if (previousState !== nextState) {
