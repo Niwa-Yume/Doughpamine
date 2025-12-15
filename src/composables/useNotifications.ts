@@ -111,11 +111,21 @@ export function useNotifications() {
 
       const delayHours = parseDelayHours(rienFaireAction.delay_h) || 24
 
-      // Envoyer la notification 1h avant la transition (pour laisser le temps de nourrir)
-      const notificationDelayHours = Math.max(1, delayHours - 1)
-
+      let notificationDelayHours: number
+      let notificationTime: Date
       const lastFed = new Date(lastFedAt)
-      const notificationTime = new Date(lastFed.getTime() + notificationDelayHours * 60 * 60 * 1000)
+
+      // ⚡ Gestion spéciale pour les délais courts (< 2h)
+      if (delayHours < 2) {
+        // Pour l'état "prêt" (0.5h) et autres états courts
+        // Envoyer une notification dans 5 minutes pour informer l'utilisateur
+        notificationTime = new Date(Date.now() + 5 * 60 * 1000) // Dans 5 minutes
+        console.log(`⚡ Délai court détecté (${delayHours}h), notification dans 5 minutes`)
+      } else {
+        // Pour les délais normaux : notification 1h avant la transition
+        notificationDelayHours = Math.max(1, delayHours - 1)
+        notificationTime = new Date(lastFed.getTime() + notificationDelayHours * 60 * 60 * 1000)
+      }
 
       // Ne pas planifier si c'est dans le passé
       if (notificationTime.getTime() <= Date.now()) {
@@ -123,31 +133,31 @@ export function useNotifications() {
         return
       }
 
-      // 3️⃣ Créer le message selon l'état
+      // 3️⃣ Créer le message selon l'état et le contexte
       const messages = {
         'jeune': {
           title: '🌱 Temps de nourrir votre bébé levain !',
-          body: `${levainName} a besoin d'attention pour bien grandir`
+          body: `${levainName} a besoin d'attention pour bien grandir. Jour ${Math.floor((Date.now() - lastFed.getTime()) / (1000 * 60 * 60 * 24))}/6`
         },
         'actif': {
-          title: '✨ Votre levain a faim !',
-          body: `${levainName} doit être nourri pour rester actif`
+          title: '✨ Votre levain sera bientôt affamé',
+          body: `${levainName} doit être nourri dans l'heure qui vient pour rester en forme`
         },
         'prêt': {
-          title: '🍞 Levain prêt à utiliser !',
-          body: `${levainName} est au pic de sa forme, parfait pour faire du pain`
+          title: '🍞 Levain au pic de forme !',
+          body: `${levainName} est prêt à utiliser maintenant ! Profitez-en dans les 2-3h pour faire du pain parfait 🎯`
         },
         'affamé': {
           title: '😋 Votre levain a TRÈS faim !',
-          body: `${levainName} n'a pas été nourri depuis longtemps, pensez à lui !`
+          body: `${levainName} n'a pas été nourri depuis longtemps. Nourrissez-le rapidement ! ⏰`
         },
         'négligé': {
           title: '🆘 URGENT : Levain en danger !',
-          body: `${levainName} risque de mourir ! Nourrissez-le maintenant`
+          body: `${levainName} risque de mourir ! Nourrissez-le IMMÉDIATEMENT ou il sera perdu ! 💀`
         },
         'au_frais': {
-          title: '❄️ Levain au frais',
-          body: `${levainName} est au réfrigérateur, pensez à le sortir avant utilisation`
+          title: '❄️ Levain au frais - Rappel',
+          body: `${levainName} est au réfrigérateur depuis longtemps. Pensez à le sortir et le nourrir bientôt 🧊`
         }
       }
 
