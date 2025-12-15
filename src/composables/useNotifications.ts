@@ -110,27 +110,47 @@ export function useNotifications() {
       }
 
       const delayHours = parseDelayHours(rienFaireAction.delay_h) || 24
-
-      let notificationDelayHours: number
-      let notificationTime: Date
+      const delayMs = delayHours * 60 * 60 * 1000
       const lastFed = new Date(lastFedAt)
 
-      // ⚡ Gestion spéciale pour les délais courts (< 2h)
-      if (delayHours < 2) {
-        // Pour l'état "prêt" (0.5h) et autres états courts
-        // Envoyer une notification dans 5 minutes pour informer l'utilisateur
-        notificationTime = new Date(Date.now() + 5 * 60 * 1000) // Dans 5 minutes
-        console.log(`⚡ Délai court détecté (${delayHours}h), notification dans 5 minutes`)
+      let notificationOffset: number
+      let notificationTime: Date
+      let logMessage: string
+
+      // 🎯 Logique adaptée au délai de transition
+      if (delayHours < 1) {
+        // Pour les très courts délais (< 1h, ex: état "prêt" = 30 min)
+        // Notifier à 50% du temps écoulé
+        notificationOffset = delayMs * 0.5
+        const minutesBeforeTransition = (delayHours * 60) * 0.5
+        logMessage = `⚡ Court délai (${delayHours * 60} min), notification à 50% (dans ${minutesBeforeTransition} min)`
+      } else if (delayHours < 3) {
+        // Pour les délais moyens (1-3h)
+        // Notifier 30 minutes avant la transition
+        notificationOffset = delayMs - (30 * 60 * 1000)
+        logMessage = `⏱️ Délai moyen (${delayHours}h), notification 30 min avant`
       } else {
-        // Pour les délais normaux : notification 1h avant la transition
-        notificationDelayHours = Math.max(1, delayHours - 1)
-        notificationTime = new Date(lastFed.getTime() + notificationDelayHours * 60 * 60 * 1000)
+        // Pour les longs délais (> 3h, ex: 24h, 12h, etc.)
+        // Notifier 1 heure avant la transition
+        notificationOffset = delayMs - (60 * 60 * 1000)
+        logMessage = `⏰ Long délai (${delayHours}h), notification 1h avant`
       }
+
+      notificationTime = new Date(lastFed.getTime() + notificationOffset)
 
       // Ne pas planifier si c'est dans le passé
       if (notificationTime.getTime() <= Date.now()) {
-        console.log('⏰ Notification déjà passée, pas de planification')
-        return
+        console.log('⏰ Notification dans le passé, pas de planification')
+        // Pour les délais très courts, planifier immédiatement
+        if (delayHours < 1) {
+          notificationTime = new Date(Date.now() + 10 * 1000) // Dans 10 secondes
+          console.log('⚡ Délai très court, notification immédiate dans 10s')
+        } else {
+          return
+        }
+      } else {
+        console.log(logMessage)
+        console.log(`📅 Notification planifiée pour: ${notificationTime.toLocaleString('fr-FR')}`)
       }
 
       // 3️⃣ Créer le message selon l'état et le contexte
