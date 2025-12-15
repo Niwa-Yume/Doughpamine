@@ -2,6 +2,7 @@ import { ref, computed, watchEffect } from 'vue'
 import { supabase } from '@/lib/supabaseClient'
 import { useAuth } from '@/composables/useAuth'
 import { useToast } from '@/composables/useToast'
+import { useStreakStore } from '@/stores/streakStore'
 import {
     shouldAutoTransition,
     STATE_DB_TO_MACHINE,
@@ -62,6 +63,16 @@ export function useDough() {
 
       if (err) throw err
       levain.value = (levainList && levainList.length > 0) ? levainList[0] : null
+
+      // ✅ Synchroniser la streak du levain avec le store Pinia
+      if (levain.value) {
+        const streakStore = useStreakStore()
+        // Si la streak en BDD est différente, on la charge
+        if (levain.value.streak > streakStore.currentStreak) {
+          // La BDD est la source de vérité
+          streakStore.loadFromStorage() // On garde aussi le localStorage pour compatibilité
+        }
+      }
     } catch (e: any) {
       error.value = e?.message ?? 'Impossible de récupérer le levain'
       levain.value = null
@@ -108,12 +119,16 @@ export function useDough() {
             nextState = DEFAULT_FED_STATE;
         }
 
+        // ✅ Mettre à jour la streak
+        const streakStore = useStreakStore()
+        streakStore.updateStreakOnFeed()
 
         const { error: err } = await supabase
             .from('levains')
             .update({
                 last_fed_at: nextLastFed,
-                current_state_name: nextState
+                current_state_name: nextState,
+                streak: streakStore.currentStreak
             })
             .eq('id', levain.value.id)
 
@@ -123,7 +138,8 @@ export function useDough() {
         levain.value = {
             ...levain.value,
             last_fed_at: nextLastFed,
-            current_state_name: nextState
+            current_state_name: nextState,
+            streak: streakStore.currentStreak
         }
 
         // Afficher le toast si l'état a changé après le nourrissage

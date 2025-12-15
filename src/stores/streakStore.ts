@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
+import { supabase } from '@/lib/supabaseClient'
 
 export interface StreakData {
   currentStreak: number
@@ -116,6 +117,44 @@ export const useStreakStore = defineStore('streak', () => {
     }
   }
 
+  // Synchroniser la streak avec la BDD Supabase
+  async function syncWithDatabase(levainId: string) {
+    try {
+      const { error: err } = await supabase
+        .from('levains')
+        .update({
+          streak: currentStreak.value
+        })
+        .eq('id', levainId)
+
+      if (err) {
+        console.error('Erreur lors de la synchronisation de la streak avec Supabase:', err)
+      }
+    } catch (error) {
+      console.error('Erreur lors de la synchronisation de la streak:', error)
+    }
+  }
+
+  // Charger la streak depuis la BDD pour un levain donné
+  async function loadFromDatabase(levainId: string) {
+    try {
+      const { data, error: err } = await supabase
+        .from('levains')
+        .select('streak')
+        .eq('id', levainId)
+        .single()
+
+      if (err) throw err
+
+      if (data && data.streak !== undefined) {
+        currentStreak.value = data.streak
+        saveToStorage()
+      }
+    } catch (error) {
+      console.error('Erreur lors du chargement de la streak depuis Supabase:', error)
+    }
+  }
+
   // Charger les données au démarrage
   loadFromStorage()
 
@@ -130,7 +169,9 @@ export const useStreakStore = defineStore('streak', () => {
     resetStreak,
     resetAll,
     checkStreakExpiry,
-    loadFromStorage
+    loadFromStorage,
+    syncWithDatabase,
+    loadFromDatabase
   }
 })
 

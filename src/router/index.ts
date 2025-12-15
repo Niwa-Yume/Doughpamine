@@ -7,6 +7,7 @@ import AuthPage from '../views/AuthPage.vue';
 import CreateDough from '../views/CreateDough.vue';
 import LiaisonLevainPage from '../views/LiaisonLevainPage.vue';
 import CreationLevainPage from '../views/CreationLevainPage.vue';
+import NotificationsSettingsPage from '../views/NotificationsSettingsPage.vue';
 import { supabase } from '@/lib/supabaseClient';
 
 const routes: Array<RouteRecordRaw> = [
@@ -49,6 +50,12 @@ const routes: Array<RouteRecordRaw> = [
     name: 'Score',
     component: ScorePage,
     meta: { title: 'Score', requiresAuth: true }
+  },
+  {
+    path: '/notifications',
+    name: 'NotificationsSettings',
+    component: NotificationsSettingsPage,
+    meta: { title: 'Paramètres Notifications', requiresAuth: true }
   },
   {
     path: '/auth',
