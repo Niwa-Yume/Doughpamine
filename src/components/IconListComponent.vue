@@ -25,6 +25,10 @@
             <span class="dropdown-item__icon">🏆</span>
             <span class="dropdown-item__text">Score</span>
           </button>
+          <button class="dropdown-item" @click.stop="navigateToNotifications">
+            <span class="dropdown-item__icon">🔔</span>
+            <span class="dropdown-item__text">Notifications</span>
+          </button>
         </div>
       </transition>
     </div>
@@ -32,7 +36,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted, computed, watch } from 'vue';
+import { ref, onMounted, onUnmounted, computed } from 'vue';
 import { useRouter } from 'vue-router';
 import StreakDisplay from './StreakDisplay.vue';
 import { useStreakStore } from '@/stores/streakStore';
@@ -64,6 +68,12 @@ function navigateToScore(event: MouseEvent) {
   event.stopPropagation();
   closeMenu();
   router.push('/score');
+}
+
+function navigateToNotifications(event: MouseEvent) {
+  event.stopPropagation();
+  closeMenu();
+  router.push('/notifications');
 }
 
 // Fermer le menu si on clique en dehors
