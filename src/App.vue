@@ -1,11 +1,13 @@
 <template>
   <ion-app>
     <ion-router-outlet />
+    <PWAUpdatePrompt />
   </ion-app>
 </template>
 
 <script setup lang="ts">
 import { IonApp, IonRouterOutlet } from '@ionic/vue';
+import PWAUpdatePrompt from '@/components/PWAUpdatePrompt.vue';
 import { supabase } from '@/lib/supabaseClient';
 import { onMounted } from 'vue';
 import { useRouter } from 'vue-router';

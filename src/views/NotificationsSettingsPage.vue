@@ -1,15 +1,15 @@
 <template>
   <ion-page>
     <ion-header>
-      <ion-toolbar>
+      <ion-toolbar color="primary">
         <ion-buttons slot="start">
-          <ion-back-button default-href="/home"></ion-back-button>
+          <ion-back-button default-href="/home" color="light"></ion-back-button>
         </ion-buttons>
-        <ion-title>Paramètres Notifications</ion-title>
+        <ion-title class="toolbar-title">🔔 Notifications</ion-title>
       </ion-toolbar>
     </ion-header>
 
-    <ion-content class="ion-padding">
+    <ion-content class="ion-padding" :style="{ '--background': '#F2E5CA' }">
       <div class="settings-container">
         <!-- Section : État des notifications -->
         <div class="settings-section">
@@ -274,153 +274,247 @@ onMounted(() => {
 </script>
 
 <style scoped>
+/* Toolbar */
+.toolbar-title {
+  font-family: 'ADLaM Display', cursive, sans-serif;
+  font-weight: 700;
+  font-size: 1.3rem;
+  color: white;
+}
+
 .settings-container {
   max-width: 600px;
   margin: 0 auto;
+  padding-bottom: 2rem;
 }
 
 .settings-section {
-  margin-bottom: 2rem;
-  background: white;
-  border-radius: 12px;
+  margin-bottom: 1.5rem;
+  background: #FFFFFF;
+  border-radius: 16px;
   padding: 1.5rem;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  border: 2px solid #F2E5CA;
 }
 
 .section-title {
-  font-size: 1.25rem;
-  font-weight: 600;
-  margin: 0 0 1rem 0;
-  color: #333;
+  font-size: 1.35rem;
+  font-weight: 700;
+  margin: 0 0 1.25rem 0;
+  color: #633216;
+  font-family: 'ADLaM Display', cursive, sans-serif;
 }
 
+/* Card d'état des notifications */
 .status-card {
   display: flex;
   align-items: center;
   gap: 1rem;
-  padding: 1rem;
-  border-radius: 8px;
+  padding: 1.25rem;
+  border-radius: 12px;
   margin-bottom: 1rem;
+  transition: all 0.3s ease;
 }
 
 .status-card.enabled {
-  background: #e8f5e9;
+  background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%);
   border: 2px solid #4caf50;
+  box-shadow: 0 2px 8px rgba(76, 175, 80, 0.2);
 }
 
 .status-card.disabled {
-  background: #fafafa;
-  border: 2px solid #ddd;
+  background: linear-gradient(135deg, #fafafa 0%, #f5f5f5 100%);
+  border: 2px solid #e0e0e0;
 }
 
 .status-icon {
-  font-size: 2.5rem;
+  font-size: 3rem;
+  line-height: 1;
+  flex-shrink: 0;
 }
 
 .status-text h3 {
   margin: 0 0 0.25rem 0;
-  font-size: 1.1rem;
-  font-weight: 600;
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: #333;
 }
 
 .status-text p {
   margin: 0;
-  font-size: 0.9rem;
-  color: #666;
+  font-size: 0.95rem;
+  color: #555;
+  line-height: 1.4;
 }
 
+/* Boutons */
 .enable-button {
   margin-top: 1rem;
+  --background: linear-gradient(135deg, #955934 0%, #7a4628 100%);
+  --box-shadow: 0 4px 12px rgba(149, 89, 52, 0.3);
+  font-weight: 600;
+  font-size: 1rem;
+  height: 52px;
 }
 
 .test-button {
-  margin-top: 0.5rem;
+  margin-top: 0.75rem;
+  --border-color: #955934;
+  --color: #955934;
+  font-weight: 600;
 }
 
+/* État vide */
 .empty-state {
   text-align: center;
-  padding: 2rem;
+  padding: 2.5rem 1rem;
   color: #999;
+  font-size: 1rem;
+  font-style: italic;
 }
 
+/* Liste des notifications */
 .notifications-list {
   margin: 1rem 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
 }
 
 .notification-item {
   display: flex;
   gap: 1rem;
-  padding: 1rem;
-  border: 1px solid #e0e0e0;
-  border-radius: 8px;
-  margin-bottom: 0.5rem;
-  background: #fafafa;
+  padding: 1.25rem;
+  border: 2px solid #F2E5CA;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #FFFFFF 0%, #FEFEFE 100%);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  transition: all 0.2s ease;
+}
+
+.notification-item:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  transform: translateY(-2px);
 }
 
 .notif-icon {
-  font-size: 1.5rem;
+  font-size: 2rem;
+  flex-shrink: 0;
+  line-height: 1;
 }
 
 .notif-content {
   flex: 1;
+  min-width: 0;
 }
 
 .notif-content h4 {
-  margin: 0 0 0.25rem 0;
-  font-size: 1rem;
-  font-weight: 600;
+  margin: 0 0 0.5rem 0;
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #333;
+  line-height: 1.3;
 }
 
 .notif-content p {
-  margin: 0 0 0.5rem 0;
-  font-size: 0.9rem;
-  color: #666;
-}
-
-.notif-time {
-  font-size: 0.85rem;
-  color: #999;
-  font-style: italic;
-}
-
-.info-card {
-  background: #f5f5f5;
-  padding: 1rem;
-  border-radius: 8px;
-  border-left: 4px solid #2196f3;
-}
-
-.info-card p {
   margin: 0 0 0.75rem 0;
+  font-size: 0.95rem;
+  color: #666;
   line-height: 1.5;
 }
 
+.notif-time {
+  display: inline-block;
+  font-size: 0.85rem;
+  color: #955934;
+  font-weight: 600;
+  background: #F2E5CA;
+  padding: 0.25rem 0.75rem;
+  border-radius: 12px;
+}
+
+/* Card d'information */
+.info-card {
+  background: linear-gradient(135deg, #FFF9F0 0%, #F2E5CA 100%);
+  padding: 1.5rem;
+  border-radius: 12px;
+  border-left: 5px solid #955934;
+  box-shadow: 0 2px 8px rgba(149, 89, 52, 0.1);
+}
+
+.info-card p {
+  margin: 0 0 1rem 0;
+  line-height: 1.6;
+  color: #333;
+  font-size: 0.95rem;
+}
+
+.info-card strong {
+  color: #633216;
+  font-weight: 700;
+}
+
 .info-card ul {
-  margin: 0.75rem 0;
+  margin: 1rem 0;
   padding-left: 1.5rem;
+  list-style: none;
 }
 
 .info-card li {
-  margin-bottom: 0.5rem;
-  line-height: 1.4;
+  margin-bottom: 0.75rem;
+  line-height: 1.5;
+  color: #444;
+  position: relative;
+  padding-left: 0.5rem;
+}
+
+.info-card li strong {
+  color: #633216;
 }
 
 .note {
   font-size: 0.9rem;
   color: #666;
-  margin-top: 0.75rem !important;
+  margin-top: 1rem !important;
+  padding: 0.75rem;
+  background: rgba(149, 89, 52, 0.08);
+  border-radius: 8px;
+  border-left: 3px solid #955934;
 }
 
+/* Debug info */
 .debug-info {
-  background: #263238;
+  background: linear-gradient(135deg, #263238 0%, #1a1f23 100%);
   color: #aed581;
-  padding: 1rem;
-  border-radius: 8px;
-  font-family: monospace;
+  padding: 1.25rem;
+  border-radius: 12px;
+  font-family: 'Monaco', 'Consolas', monospace;
+  font-size: 0.9rem;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.3);
 }
 
 .debug-info p {
   margin: 0.5rem 0;
+  line-height: 1.6;
+}
+
+.debug-info strong {
+  color: #81c784;
+}
+
+/* Responsive */
+@media (max-width: 640px) {
+  .settings-section {
+    padding: 1.25rem;
+  }
+
+  .section-title {
+    font-size: 1.2rem;
+  }
+
+  .notification-item {
+    padding: 1rem;
+  }
 }
 </style>
 

@@ -41,50 +41,54 @@ export function useToast() {
   }
 
   /**
-   * Affiche un toast de succès
+   * Affiche un toast de succès avec un design moderne
    */
   async function showSuccess(message: string, header?: string) {
     return showToast({
-      header: header || '✅ Succès',
+      header: header || '✅ Succès !',
       message,
       cssClass: 'toast-success',
-      duration: 3000
+      duration: 3000,
+      position: 'top'
     });
   }
 
   /**
-   * Affiche un toast d'erreur
+   * Affiche un toast d'erreur avec un design visible
    */
   async function showError(message: string, header?: string) {
     return showToast({
-      header: header || '❌ Erreur',
+      header: header || '❌ Oups...',
       message,
       cssClass: 'toast-error',
-      duration: 4000
+      duration: 4500,
+      position: 'top'
     });
   }
 
   /**
-   * Affiche un toast d'information
+   * Affiche un toast d'information avec un design informatif
    */
   async function showInfo(message: string, header?: string) {
     return showToast({
-      header: header || 'ℹ️ Info',
+      header: header || 'ℹ️ Information',
       message,
       cssClass: 'toast-info',
-      duration: 3500
+      duration: 3500,
+      position: 'top'
     });
   }
 
   /**
-   * Affiche un toast d'avertissement
+   * Affiche un toast d'avertissement avec un design d'alerte
    */
   async function showWarning(message: string, header?: string) {
     return showToast({
-      header: header || '⚠️ Attention',
+      header: header || '⚠️ Attention !',
       message,
       cssClass: 'toast-warning',
-      duration: 4500
+      duration: 5000,
+      position: 'top'
     });
   }
 
